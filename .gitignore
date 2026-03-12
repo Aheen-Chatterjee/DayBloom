@@ -1,0 +1,4 @@
+.env
+backend/.env
+.claude/
+settings.local.json
