@@ -1,0 +1,22 @@
+# fly.toml app configuration file generated for daybloom-backend
+#
+# See https://fly.io/docs/reference/configuration/ for information about how to use this file.
+#
+
+app = "daybloom-backend-mashallah"
+primary_region = "iad"
+
+[build]
+  dockerfile = "Dockerfile"
+
+[env]
+  # Add non-sensitive environment variables here
+  # E.g., PORT = "8080"
+
+[http_service]
+  internal_port = 8080
+  force_https = true
+  auto_stop_machines = true
+  auto_start_machines = true
+  min_machines_running = 0
+  processes = ["app"]

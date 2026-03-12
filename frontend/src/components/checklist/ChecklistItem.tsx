@@ -1,7 +1,8 @@
 'use client'
 
 import { useState } from 'react'
-import { Check } from 'lucide-react'
+import { Check, Flame } from 'lucide-react'
+import confetti from 'canvas-confetti'
 import { Habit } from '@/types/habits'
 import { cn } from '@/lib/utils/cn'
 
@@ -9,15 +10,29 @@ interface ChecklistItemProps {
   habit: Habit
   completed: boolean
   onToggle: () => void
+  streak?: number
 }
 
-export function ChecklistItem({ habit, completed, onToggle }: ChecklistItemProps) {
+export function ChecklistItem({ habit, completed, onToggle, streak = 0 }: ChecklistItemProps) {
   const [animating, setAnimating] = useState(false)
 
-  const handleToggle = () => {
+  const handleToggle = (e: React.MouseEvent<HTMLElement>) => {
     if (!completed) {
       setAnimating(true)
       setTimeout(() => setAnimating(false), 300)
+      
+      // Fire confetti
+      const rect = (e.currentTarget as HTMLElement).getBoundingClientRect()
+      const y = rect ? (rect.top + rect.height / 2) / window.innerHeight : 0.5
+      const x = rect ? (rect.left + rect.width / 2) / window.innerWidth : 0.5
+
+      confetti({
+        particleCount: 40,
+        spread: 50,
+        origin: { y, x },
+        colors: ['#4E7D5E', '#C9A96E', '#7AA88A'],
+        disableForReducedMotion: true,
+      })
     }
     onToggle()
   }
@@ -26,11 +41,11 @@ export function ChecklistItem({ habit, completed, onToggle }: ChecklistItemProps
     <button
       onClick={handleToggle}
       className={cn(
-        'w-full flex items-center gap-4 px-4 py-3.5 rounded-xl border transition-all duration-200 text-left group',
+        'w-full flex items-center gap-4 px-4 py-4 rounded-2xl border transition-all duration-300 text-left group',
         completed
-          ? 'bg-[#1E3D2F08] border-[#1E3D2F20]'
-          : 'bg-white border-[#E2DBD0] hover:border-[#C9A96E60] hover:shadow-sm',
-        animating && 'scale-[1.01]'
+          ? 'bg-[#EAF3EC] border-[#A8C4B0]'
+          : 'bg-white border-[#E2DBD0] hover:bg-[#F7F5F2] hover:border-[#C9A96E] hover:shadow-[0_4px_20px_rgba(0,0,0,0.05)]',
+        animating && 'scale-[1.03]'
       )}
     >
       {/* Checkbox */}
@@ -58,12 +73,20 @@ export function ChecklistItem({ habit, completed, onToggle }: ChecklistItemProps
         </span>
       </div>
 
-      {/* Frequency badge */}
-      {!completed && (
-        <span className="text-xs text-[#B0A898] flex-shrink-0 capitalize hidden sm:block">
-          {habit.frequency}
-        </span>
-      )}
+      {/* Frequency & Streak badge */}
+      <div className="flex items-center gap-3 flex-shrink-0">
+        {!completed && (
+          <span className="text-xs text-[#B0A898] capitalize hidden sm:block">
+            {habit.frequency}
+          </span>
+        )}
+        {streak > 0 && (
+          <div className="flex items-center gap-1 bg-[#FFF9F0] border border-[#F0EDE4] px-2 py-1 rounded-md">
+            <Flame size={12} className="text-[#D5A03A]" />
+            <span className="text-xs font-bold text-[#D5A03A]">{streak}</span>
+          </div>
+        )}
+      </div>
     </button>
   )
 }
