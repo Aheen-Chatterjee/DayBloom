@@ -1,36 +1,42 @@
 import Link from 'next/link'
 import { JournalEntry } from '@/types/journal'
 import { formatRelative, formatDate } from '@/lib/utils/dates'
-import { cn } from '@/lib/utils/cn'
 
 interface JournalCardProps {
   entry: JournalEntry
 }
 
 export function JournalCard({ entry }: JournalCardProps) {
-  const preview = entry.body.replace(/[#*`_]/g, '').slice(0, 120)
+  const preview = entry.body.replace(/[#*`_\[\]]/g, '').slice(0, 140)
+  const wordCount = entry.body.split(/\s+/).filter(Boolean).length
 
   return (
     <Link href={`/journal/${entry.id}`}>
-      <div className={cn(
-        'bg-[#FAF7F2] border border-[#D4C5A9] rounded-xl p-5',
-        'hover:shadow-md hover:border-[#8B7355] transition-all cursor-pointer group'
-      )}>
-        <div className="flex items-start justify-between gap-2 mb-2">
-          <h3 className="font-serif font-bold text-[#8B7355] group-hover:text-[#6D5A40] line-clamp-1">
+      <article className="group bg-white border border-[#E2DBD0] rounded-2xl p-5 hover:border-[#C9A96E60] hover:shadow-md transition-all duration-200 shadow-[0_1px_4px_rgba(30,61,47,0.04)]">
+        <div className="flex items-start justify-between gap-4 mb-2">
+          <h3
+            className="font-semibold text-[#1A1A1A] group-hover:text-[#1E3D2F] transition-colors line-clamp-1 flex-1"
+            style={{ fontFamily: '"Cormorant Garamond", serif', fontSize: '18px', fontWeight: 600 }}
+          >
             {entry.title || formatDate(entry.entry_date)}
           </h3>
-          <span className="text-xs text-[#A08B6E] flex-shrink-0 mt-1">
-            {formatRelative(entry.entry_date)}
-          </span>
+          <span className="text-xs text-[#B0A898] flex-shrink-0 mt-1">{formatRelative(entry.entry_date)}</span>
         </div>
+
         {entry.title && (
-          <p className="text-xs text-[#A08B6E] mb-2">{formatDate(entry.entry_date)}</p>
+          <p className="text-xs text-[#B0A898] mb-2">{formatDate(entry.entry_date)}</p>
         )}
+
         {preview && (
-          <p className="text-sm text-[#6B5B45] line-clamp-2 leading-relaxed">{preview}...</p>
+          <p className="text-sm text-[#7A7169] line-clamp-2 leading-relaxed">{preview}{preview.length >= 140 ? '...' : ''}</p>
         )}
-      </div>
+
+        <div className="mt-3 flex items-center gap-3">
+          <span className="text-xs text-[#C0B8B0]">{wordCount} words</span>
+          <span className="w-1 h-1 rounded-full bg-[#E2DBD0]" />
+          <span className="text-xs text-[#C0B8B0]">{new Date(entry.entry_date + 'T00:00:00').toLocaleDateString('en-US', { month: 'short', day: 'numeric' })}</span>
+        </div>
+      </article>
     </Link>
   )
 }

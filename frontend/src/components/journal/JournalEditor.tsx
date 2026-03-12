@@ -4,9 +4,8 @@ import { useState, useRef, useEffect, useCallback } from 'react'
 import dynamic from 'next/dynamic'
 import { journalApi } from '@/lib/api/journal'
 import { AutoSaveIndicator, SaveStatus } from './AutoSaveIndicator'
-import { Input } from '@/components/ui/Input'
-import type { JournalEntry } from '@/types/journal'
 import { formatDate } from '@/lib/utils/dates'
+import type { JournalEntry } from '@/types/journal'
 
 const MDEditor = dynamic(() => import('@uiw/react-md-editor'), { ssr: false })
 
@@ -30,23 +29,15 @@ export function JournalEditor({ entry, initialDate, onSaved }: JournalEditorProp
     setSaveStatus('saving')
     try {
       if (!id) {
-        // Need to create first
         if (creatingId) return
         setCreatingId(true)
-        const created = await journalApi.create({
-          entry_date: date,
-          title: currentTitle || undefined,
-          body: currentBody,
-        })
+        const created = await journalApi.create({ entry_date: date, title: currentTitle || undefined, body: currentBody })
         setEntryId(created.id)
         setCreatingId(false)
         setSaveStatus('saved')
         onSaved?.(created.id, created)
       } else {
-        const updated = await journalApi.update(id, {
-          title: currentTitle || undefined,
-          body: currentBody,
-        })
+        const updated = await journalApi.update(id, { title: currentTitle || undefined, body: currentBody })
         setSaveStatus('saved')
         onSaved?.(id, updated)
       }
@@ -56,31 +47,12 @@ export function JournalEditor({ entry, initialDate, onSaved }: JournalEditorProp
     setTimeout(() => setSaveStatus('idle'), 3000)
   }, [date, creatingId, onSaved])
 
-  // Debounced auto-save
-  const scheduleAutoSave = useCallback((newTitle: string, newBody: string) => {
+  const scheduleAutoSave = useCallback((t: string, b: string) => {
     if (saveTimer.current) clearTimeout(saveTimer.current)
-    setSaveStatus('idle')
-    saveTimer.current = setTimeout(() => {
-      doSave(newTitle, newBody, entryId)
-    }, 30000)
+    saveTimer.current = setTimeout(() => doSave(t, b, entryId), 30000)
   }, [doSave, entryId])
 
-  useEffect(() => {
-    return () => {
-      if (saveTimer.current) clearTimeout(saveTimer.current)
-    }
-  }, [])
-
-  const handleTitleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    setTitle(e.target.value)
-    scheduleAutoSave(e.target.value, body)
-  }
-
-  const handleBodyChange = (value: string | undefined) => {
-    const val = value || ''
-    setBody(val)
-    scheduleAutoSave(title, val)
-  }
+  useEffect(() => () => { if (saveTimer.current) clearTimeout(saveTimer.current) }, [])
 
   const handleManualSave = () => {
     if (saveTimer.current) clearTimeout(saveTimer.current)
@@ -88,41 +60,30 @@ export function JournalEditor({ entry, initialDate, onSaved }: JournalEditorProp
   }
 
   return (
-    <div className="space-y-4">
-      {/* Header */}
-      <div className="flex items-center justify-between">
-        <p className="text-sm text-[#A08B6E]">{formatDate(date)}</p>
+    <div className="space-y-5">
+      <div className="flex items-center justify-between pb-4 border-b border-[#F0EDE4]">
+        <p className="text-xs font-semibold text-[#B0A898] uppercase tracking-wider">{formatDate(date)}</p>
         <div className="flex items-center gap-3">
           <AutoSaveIndicator status={saveStatus} />
-          <button
-            onClick={handleManualSave}
-            className="text-sm text-[#8B7355] hover:underline font-medium"
-          >
-            Save now
-          </button>
+          <button onClick={handleManualSave} className="text-xs font-medium text-[#1E3D2F] hover:underline">Save now</button>
         </div>
       </div>
 
-      {/* Title */}
-      <Input
+      <input
         value={title}
-        onChange={handleTitleChange}
+        onChange={e => { setTitle(e.target.value); scheduleAutoSave(e.target.value, body) }}
         placeholder="Entry title (optional)"
-        className="text-lg font-serif font-bold border-0 border-b border-[#D4C5A9] rounded-none px-0 bg-transparent focus:ring-0 focus:border-[#8B7355]"
+        className="w-full text-2xl font-semibold text-[#1A1A1A] bg-transparent border-none outline-none placeholder:text-[#D5CEC5]"
+        style={{ fontFamily: '"Cormorant Garamond", serif', fontWeight: 600 }}
       />
 
-      {/* Body */}
       <div data-color-mode="light">
         <MDEditor
           value={body}
-          onChange={handleBodyChange}
+          onChange={val => { const v = val || ''; setBody(v); scheduleAutoSave(title, v) }}
           preview="edit"
-          height={400}
-          style={{
-            backgroundColor: '#FAF7F2',
-            border: '1px solid #D4C5A9',
-            borderRadius: 12,
-          }}
+          height={420}
+          style={{ background: 'transparent', border: 'none', boxShadow: 'none', fontFamily: '"DM Sans", sans-serif' }}
         />
       </div>
     </div>

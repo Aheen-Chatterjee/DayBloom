@@ -6,13 +6,26 @@ import { useToast } from '@/context/ToastContext'
 import { createClient } from '@/lib/supabase/client'
 import { Input } from '@/components/ui/Input'
 import { Button } from '@/components/ui/Button'
-import { Card } from '@/components/ui/Card'
+import { User, Lock, AlertTriangle } from 'lucide-react'
+
+function Section({ icon: Icon, title, children }: { icon: React.ElementType, title: string, children: React.ReactNode }) {
+  return (
+    <div className="bg-white border border-[#E2DBD0] rounded-2xl overflow-hidden" style={{ boxShadow: '0 1px 4px rgba(30,61,47,0.06)' }}>
+      <div className="px-6 py-4 border-b border-[#F0EDE4] flex items-center gap-2.5">
+        <Icon size={15} className="text-[#7A7169]" />
+        <h2 style={{ fontFamily: '"Cormorant Garamond", serif', fontSize: '18px', fontWeight: 600, color: '#1A1A1A' }}>
+          {title}
+        </h2>
+      </div>
+      <div className="p-6">{children}</div>
+    </div>
+  )
+}
 
 export default function SettingsPage() {
-  const { user, signOut } = useAuth()
+  const { user } = useAuth()
   const { showToast } = useToast()
   const supabase = createClient()
-
   const [displayName, setDisplayName] = useState(user?.user_metadata?.display_name || '')
   const [newPassword, setNewPassword] = useState('')
   const [confirmPassword, setConfirmPassword] = useState('')
@@ -22,99 +35,63 @@ export default function SettingsPage() {
   const handleSaveName = async (e: React.FormEvent) => {
     e.preventDefault()
     setSavingName(true)
-    const { error } = await supabase.auth.updateUser({
-      data: { display_name: displayName },
-    })
+    const { error } = await supabase.auth.updateUser({ data: { display_name: displayName } })
     if (error) showToast(error.message, 'error')
-    else showToast('Display name updated! ✿')
+    else showToast('Display name updated')
     setSavingName(false)
   }
 
   const handleChangePassword = async (e: React.FormEvent) => {
     e.preventDefault()
-    if (newPassword !== confirmPassword) {
-      showToast('Passwords do not match', 'error')
-      return
-    }
-    if (newPassword.length < 8) {
-      showToast('Password must be at least 8 characters', 'error')
-      return
-    }
+    if (newPassword !== confirmPassword) { showToast('Passwords do not match', 'error'); return }
+    if (newPassword.length < 8) { showToast('Password must be at least 8 characters', 'error'); return }
     setSavingPassword(true)
     const { error } = await supabase.auth.updateUser({ password: newPassword })
     if (error) showToast(error.message, 'error')
-    else {
-      showToast('Password updated!')
-      setNewPassword('')
-      setConfirmPassword('')
-    }
+    else { showToast('Password updated'); setNewPassword(''); setConfirmPassword('') }
     setSavingPassword(false)
   }
 
-  const handleDeleteAccount = async () => {
-    if (!confirm('Are you sure? This will permanently delete all your data and cannot be undone.')) return
-    if (!confirm('Final confirmation: delete everything?')) return
-    showToast('Account deletion requires admin action. Please contact support.', 'info')
-  }
-
   return (
-    <div className="p-6 md:p-8 max-w-2xl mx-auto">
-      <div className="mb-8">
-        <h1 className="font-serif text-3xl font-bold text-[#8B7355]">Settings ♡</h1>
-        <p className="text-[#A08B6E] mt-1">{user?.email}</p>
-      </div>
+    <div className="min-h-screen p-6 md:p-10" style={{ background: '#F7F5EF' }}>
+      <div className="max-w-xl mx-auto">
+        <div className="mb-10">
+          <p className="text-xs font-semibold text-[#B0A898] uppercase tracking-widest mb-2">Account</p>
+          <h1 style={{ fontFamily: '"Cormorant Garamond", serif', fontSize: '42px', fontWeight: 600, color: '#1A1A1A' }}>
+            Settings
+          </h1>
+          <p className="text-sm text-[#7A7169] mt-1">{user?.email}</p>
+        </div>
 
-      <div className="space-y-6">
-        {/* Display Name */}
-        <Card>
-          <h2 className="font-serif text-xl font-bold text-[#8B7355] mb-4">Profile</h2>
-          <form onSubmit={handleSaveName} className="space-y-4">
-            <Input
-              label="Display name"
-              value={displayName}
-              onChange={e => setDisplayName(e.target.value)}
-              placeholder="Your name"
-            />
-            <Button type="submit" disabled={savingName}>
-              {savingName ? 'Saving...' : 'Save name'}
+        <div className="space-y-4">
+          <Section icon={User} title="Profile">
+            <form onSubmit={handleSaveName} className="space-y-4">
+              <Input label="Display name" value={displayName} onChange={e => setDisplayName(e.target.value)} placeholder="Your name" />
+              <Button type="submit" disabled={savingName}>{savingName ? 'Saving...' : 'Save name'}</Button>
+            </form>
+          </Section>
+
+          <Section icon={Lock} title="Password">
+            <form onSubmit={handleChangePassword} className="space-y-4">
+              <Input label="New password" type="password" value={newPassword} onChange={e => setNewPassword(e.target.value)} placeholder="At least 8 characters" />
+              <Input label="Confirm password" type="password" value={confirmPassword} onChange={e => setConfirmPassword(e.target.value)} placeholder="Repeat new password" />
+              <Button type="submit" disabled={savingPassword}>{savingPassword ? 'Updating...' : 'Update password'}</Button>
+            </form>
+          </Section>
+
+          <Section icon={AlertTriangle} title="Danger Zone">
+            <p className="text-sm text-[#7A7169] mb-4">Permanently deletes all your data. This cannot be undone.</p>
+            <Button variant="danger" onClick={() => {
+              if (confirm('Are you sure? All data will be permanently deleted.')) {
+                if (confirm('Final confirmation — delete everything?')) {
+                  alert('Account deletion requires admin action. Please contact support.')
+                }
+              }
+            }}>
+              Delete account
             </Button>
-          </form>
-        </Card>
-
-        {/* Password */}
-        <Card>
-          <h2 className="font-serif text-xl font-bold text-[#8B7355] mb-4">Change Password</h2>
-          <form onSubmit={handleChangePassword} className="space-y-4">
-            <Input
-              label="New password"
-              type="password"
-              value={newPassword}
-              onChange={e => setNewPassword(e.target.value)}
-              placeholder="At least 8 characters"
-            />
-            <Input
-              label="Confirm new password"
-              type="password"
-              value={confirmPassword}
-              onChange={e => setConfirmPassword(e.target.value)}
-              placeholder="Repeat new password"
-            />
-            <Button type="submit" disabled={savingPassword}>
-              {savingPassword ? 'Updating...' : 'Update password'}
-            </Button>
-          </form>
-        </Card>
-
-        {/* Danger Zone */}
-        <Card className="border-[#C4706A]">
-          <h2 className="font-serif text-xl font-bold text-[#C4706A] mb-2">Danger Zone</h2>
-          <p className="text-sm text-[#8B7A65] mb-4">
-            Deleting your account permanently removes all data including journal entries, habits, and streaks.
-          </p>
-          <Button variant="danger" onClick={handleDeleteAccount}>
-            Delete account
-          </Button>
-        </Card>
+          </Section>
+        </div>
       </div>
     </div>
   )

@@ -6,6 +6,7 @@ import Link from 'next/link'
 import { createClient } from '@/lib/supabase/client'
 import { Input } from '@/components/ui/Input'
 import { Button } from '@/components/ui/Button'
+import { Leaf } from 'lucide-react'
 
 export default function LoginPage() {
   const [email, setEmail] = useState('')
@@ -34,62 +35,87 @@ export default function LoginPage() {
   }
 
   return (
-    <div className="min-h-screen bg-[#F5F0E8] flex items-center justify-center p-4">
-      <div className="w-full max-w-md">
-        {/* Header */}
-        <div className="text-center mb-8">
-          <h1 className="font-serif text-4xl font-bold text-[#8B7355] mb-2">DayBloom</h1>
-          <p className="text-[#A08B6E]">(^._.^)~ welcome back</p>
+    <div className="min-h-screen flex" style={{ background: '#F7F5EF' }}>
+      {/* Left decorative panel */}
+      <div
+        className="hidden lg:flex lg:w-2/5 flex-col justify-between p-12"
+        style={{ background: 'linear-gradient(160deg, #1E3D2F 0%, #0D2018 100%)' }}
+      >
+        <div className="flex items-center gap-2.5">
+          <div className="w-8 h-8 rounded-lg bg-[#C9A96E] flex items-center justify-center">
+            <Leaf size={16} className="text-[#1E3D2F]" strokeWidth={2.5} />
+          </div>
+          <span style={{ fontFamily: '"Cormorant Garamond", serif', fontSize: '22px', color: 'white', fontWeight: 600 }}>
+            DayBloom
+          </span>
         </div>
+        <div>
+          <blockquote
+            style={{ fontFamily: '"Cormorant Garamond", serif', fontSize: '28px', color: 'white', lineHeight: 1.35, fontStyle: 'italic' }}
+          >
+            &ldquo;Small daily habits, compounded over time, become a remarkable life.&rdquo;
+          </blockquote>
+          <p className="mt-4 text-sm text-[#7AA88A]">Track what matters. Build what lasts.</p>
+        </div>
+        <div className="flex gap-2">
+          {[1,2,3,4,5].map(i => (
+            <div key={i} className="h-1 rounded-full flex-1" style={{ background: i <= 3 ? '#C9A96E' : '#2A5940' }} />
+          ))}
+        </div>
+      </div>
 
-        {/* Card */}
-        <div className="bg-[#FAF7F2] border border-[#D4C5A9] rounded-2xl p-8 shadow-sm">
-          <h2 className="font-serif text-2xl font-bold text-[#8B7355] mb-6">Sign in</h2>
+      {/* Right form panel */}
+      <div className="flex-1 flex items-center justify-center p-8">
+        <div className="w-full max-w-sm">
+          {/* Mobile logo */}
+          <div className="flex lg:hidden items-center gap-2 mb-8">
+            <div className="w-7 h-7 rounded-lg bg-[#1E3D2F] flex items-center justify-center">
+              <Leaf size={13} className="text-[#C9A96E]" />
+            </div>
+            <span style={{ fontFamily: '"Cormorant Garamond", serif', fontSize: '20px', color: '#1E3D2F', fontWeight: 600 }}>
+              DayBloom
+            </span>
+          </div>
 
-          {/* Demo CTA */}
+          <h1 className="mb-1" style={{ fontFamily: '"Cormorant Garamond", serif', fontSize: '32px', fontWeight: 600, color: '#1A1A1A' }}>
+            Welcome back
+          </h1>
+          <p className="text-sm text-[#7A7169] mb-8">Sign in to continue your practice</p>
+
+          {/* Demo button */}
           <button
             type="button"
             onClick={fillDemo}
-            className="w-full mb-4 p-3 rounded-xl bg-[#EDE8DF] border border-[#D4C5A9] text-sm text-[#8B7355] hover:bg-[#D4C5A9] transition-colors text-left"
+            className="w-full mb-6 p-4 rounded-xl text-left transition-all duration-200"
+            style={{
+              background: 'linear-gradient(135deg, #1E3D2F08 0%, #C9A96E12 100%)',
+              border: '1.5px solid #C9A96E40',
+            }}
+            onMouseEnter={e => (e.currentTarget.style.borderColor = '#C9A96E80')}
+            onMouseLeave={e => (e.currentTarget.style.borderColor = '#C9A96E40')}
           >
-            <span className="font-semibold">✿ Try as Luna Bloom (demo)</span>
-            <br />
-            <span className="text-xs text-[#A08B6E]">Click to prefill demo credentials</span>
+            <div className="text-sm font-semibold text-[#1E3D2F]">Try the demo account</div>
+            <div className="text-xs text-[#7A7169] mt-0.5">Explore with Luna Bloom&apos;s 14 days of data</div>
           </button>
 
-          <div className="flex items-center gap-3 mb-4">
-            <div className="flex-1 h-px bg-[#D4C5A9]" />
-            <span className="text-xs text-[#A08B6E]">or sign in</span>
-            <div className="flex-1 h-px bg-[#D4C5A9]" />
+          <div className="flex items-center gap-3 mb-6">
+            <div className="flex-1 h-px bg-[#E2DBD0]" />
+            <span className="text-xs text-[#B0A898]">or continue with email</span>
+            <div className="flex-1 h-px bg-[#E2DBD0]" />
           </div>
 
           <form onSubmit={handleLogin} className="space-y-4">
-            <Input
-              label="Email"
-              type="email"
-              value={email}
-              onChange={e => setEmail(e.target.value)}
-              placeholder="you@example.com"
-              required
-            />
-            <Input
-              label="Password"
-              type="password"
-              value={password}
-              onChange={e => setPassword(e.target.value)}
-              placeholder="••••••••"
-              required
-              error={error}
-            />
-            <Button type="submit" disabled={loading} className="w-full mt-2" size="lg">
+            <Input label="Email" type="email" value={email} onChange={e => setEmail(e.target.value)} placeholder="you@example.com" required />
+            <Input label="Password" type="password" value={password} onChange={e => setPassword(e.target.value)} placeholder="••••••••" required error={error} />
+            <Button type="submit" disabled={loading} className="w-full" size="lg">
               {loading ? 'Signing in...' : 'Sign in'}
             </Button>
           </form>
 
-          <p className="text-center mt-4 text-sm text-[#8B7A65]">
-            No account?{' '}
-            <Link href="/signup" className="text-[#8B7355] font-semibold hover:underline">
-              Sign up
+          <p className="text-center mt-6 text-sm text-[#7A7169]">
+            New here?{' '}
+            <Link href="/signup" className="font-medium hover:underline" style={{ color: '#1E3D2F' }}>
+              Create an account
             </Link>
           </p>
         </div>

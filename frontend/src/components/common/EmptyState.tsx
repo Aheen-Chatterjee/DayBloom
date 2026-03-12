@@ -1,16 +1,18 @@
 interface EmptyStateProps {
-  icon?: string
+  icon?: React.ReactNode
   title: string
   description?: string
   action?: React.ReactNode
 }
 
-export function EmptyState({ icon = '(◕‿◕)', title, description, action }: EmptyStateProps) {
+export function EmptyState({ icon, title, description, action }: EmptyStateProps) {
   return (
-    <div className="flex flex-col items-center justify-center py-16 text-center">
-      <div className="text-5xl mb-4">{icon}</div>
-      <h3 className="font-serif text-xl font-bold text-[#8B7355] mb-2">{title}</h3>
-      {description && <p className="text-sm text-[#8B7A65] mb-4 max-w-xs">{description}</p>}
+    <div className="flex flex-col items-center justify-center py-20 text-center">
+      {icon && <div className="mb-4 opacity-30">{icon}</div>}
+      <h3 className="mb-2 text-[#1A1A1A]" style={{ fontFamily: '"Cormorant Garamond", serif', fontSize: '22px', fontWeight: 600 }}>
+        {title}
+      </h3>
+      {description && <p className="text-sm text-[#7A7169] mb-6 max-w-xs leading-relaxed">{description}</p>}
       {action}
     </div>
   )

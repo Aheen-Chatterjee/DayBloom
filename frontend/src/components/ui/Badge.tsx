@@ -2,24 +2,20 @@ import { cn } from '@/lib/utils/cn'
 
 interface BadgeProps {
   children: React.ReactNode
-  variant?: 'umber' | 'sage' | 'mauve' | 'rose'
+  variant?: 'forest' | 'gold' | 'sage' | 'error' | 'neutral'
   className?: string
 }
 
-export function Badge({ children, variant = 'umber', className }: BadgeProps) {
+export function Badge({ children, variant = 'neutral', className }: BadgeProps) {
+  const variants = {
+    forest: 'bg-[#1E3D2F12] text-[#1E3D2F] border-[#1E3D2F20]',
+    gold: 'bg-[#C9A96E18] text-[#8A6E3A] border-[#C9A96E30]',
+    sage: 'bg-[#4E7D5E18] text-[#2D5A3D] border-[#4E7D5E25]',
+    error: 'bg-[#B5534D12] text-[#B5534D] border-[#B5534D20]',
+    neutral: 'bg-[#F0EDE4] text-[#7A7169] border-[#E2DBD0]',
+  }
   return (
-    <span
-      className={cn(
-        'inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-xs font-medium',
-        {
-          umber: 'bg-[#F0E8DC] text-[#8B7355]',
-          sage: 'bg-[#DCF0DC] text-[#4A6B4A]',
-          mauve: 'bg-[#EDD8ED] text-[#6B4A6B]',
-          rose: 'bg-[#F5DADA] text-[#8B4040]',
-        }[variant],
-        className
-      )}
-    >
+    <span className={cn('inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium border', variants[variant], className)}>
       {children}
     </span>
   )

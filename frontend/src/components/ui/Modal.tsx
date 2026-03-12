@@ -1,6 +1,7 @@
 'use client'
 
 import { ReactNode, useEffect } from 'react'
+import { X } from 'lucide-react'
 import { cn } from '@/lib/utils/cn'
 
 interface ModalProps {
@@ -13,11 +14,7 @@ interface ModalProps {
 
 export function Modal({ open, onClose, title, children, className }: ModalProps) {
   useEffect(() => {
-    if (open) {
-      document.body.style.overflow = 'hidden'
-    } else {
-      document.body.style.overflow = ''
-    }
+    document.body.style.overflow = open ? 'hidden' : ''
     return () => { document.body.style.overflow = '' }
   }, [open])
 
@@ -25,29 +22,29 @@ export function Modal({ open, onClose, title, children, className }: ModalProps)
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
-      <div
-        className="absolute inset-0 bg-[#2C2C2C]/40 backdrop-blur-sm"
-        onClick={onClose}
-      />
+      <div className="absolute inset-0 bg-[#1A1A1A]/40 backdrop-blur-[2px]" onClick={onClose} />
       <div
         className={cn(
-          'relative bg-[#FAF7F2] border border-[#D4C5A9] rounded-2xl shadow-xl',
-          'w-full max-w-lg max-h-[90vh] overflow-y-auto p-6',
+          'relative bg-white rounded-2xl shadow-2xl w-full max-w-lg max-h-[90vh] overflow-y-auto',
+          'border border-[#E2DBD0]',
           className
         )}
+        style={{ boxShadow: '0 25px 60px rgba(30,61,47,0.18), 0 8px 24px rgba(30,61,47,0.10)' }}
       >
         {title && (
-          <div className="flex items-center justify-between mb-4">
-            <h2 className="text-xl font-bold text-[#8B7355] font-serif">{title}</h2>
+          <div className="flex items-center justify-between px-6 py-5 border-b border-[#F0EDE4]">
+            <h2 style={{ fontFamily: '"Cormorant Garamond", serif', fontSize: '22px', fontWeight: 600, color: '#1A1A1A' }}>
+              {title}
+            </h2>
             <button
               onClick={onClose}
-              className="text-[#B0A090] hover:text-[#2C2C2C] text-2xl leading-none"
+              className="w-8 h-8 flex items-center justify-center rounded-lg text-[#7A7169] hover:bg-[#F7F5EF] hover:text-[#1A1A1A] transition-colors"
             >
-              ×
+              <X size={16} />
             </button>
           </div>
         )}
-        {children}
+        <div className="p-6">{children}</div>
       </div>
     </div>
   )
