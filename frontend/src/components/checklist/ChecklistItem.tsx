@@ -1,79 +1,57 @@
 'use client'
 
-import { useState } from 'react'
-import { Check, Flame } from 'lucide-react'
-import confetti from 'canvas-confetti'
+import { Camera, Check, Flame } from 'lucide-react'
 import { Habit } from '@/types/habits'
 import { cn } from '@/lib/utils/cn'
 
 interface ChecklistItemProps {
   habit: Habit
   completed: boolean
-  onToggle: () => void
+  onProofRequest: () => void
   streak?: number
 }
 
-export function ChecklistItem({ habit, completed, onToggle, streak = 0 }: ChecklistItemProps) {
-  const [animating, setAnimating] = useState(false)
-
-  const handleToggle = (e: React.MouseEvent<HTMLElement>) => {
-    if (!completed) {
-      setAnimating(true)
-      setTimeout(() => setAnimating(false), 300)
-      
-      // Fire confetti
-      const rect = (e.currentTarget as HTMLElement).getBoundingClientRect()
-      const y = rect ? (rect.top + rect.height / 2) / window.innerHeight : 0.5
-      const x = rect ? (rect.left + rect.width / 2) / window.innerWidth : 0.5
-
-      confetti({
-        particleCount: 40,
-        spread: 50,
-        origin: { y, x },
-        colors: ['#4E7D5E', '#C9A96E', '#7AA88A'],
-        disableForReducedMotion: true,
-      })
-    }
-    onToggle()
-  }
-
+export function ChecklistItem({ habit, completed, onProofRequest, streak = 0 }: ChecklistItemProps) {
   return (
     <button
-      onClick={handleToggle}
+      onClick={completed ? undefined : onProofRequest}
+      disabled={completed}
       className={cn(
         'w-full flex items-center gap-4 px-4 py-4 rounded-2xl border transition-all duration-300 text-left group',
         completed
-          ? 'bg-[#EAF3EC] border-[#A8C4B0]'
-          : 'bg-white border-[#E2DBD0] hover:bg-[#F7F5F2] hover:border-[#C9A96E] hover:shadow-[0_4px_20px_rgba(0,0,0,0.05)]',
-        animating && 'scale-[1.03]'
+          ? 'bg-[#EAF3EC] border-[#A8C4B0] cursor-default'
+          : 'bg-white border-[#E2DBD0] hover:bg-[#F7F5F2] hover:border-[#C9A96E] hover:shadow-[0_4px_20px_rgba(0,0,0,0.05)] cursor-pointer',
       )}
     >
-      {/* Checkbox */}
+      {/* Status indicator */}
       <div
         className={cn(
-          'w-5 h-5 rounded-full border-2 flex items-center justify-center flex-shrink-0 transition-all duration-200',
+          'w-8 h-8 rounded-full flex items-center justify-center flex-shrink-0 transition-all duration-200',
           completed
-            ? 'bg-[#1E3D2F] border-[#1E3D2F]'
-            : 'border-[#D5CEC5] group-hover:border-[#C9A96E]'
+            ? 'bg-[#1E3D2F]'
+            : 'border-2 border-[#D5CEC5] group-hover:border-[#C9A96E] group-hover:bg-[#FFF9F0]',
         )}
       >
-        {completed && <Check size={10} className="text-white" strokeWidth={3} />}
+        {completed
+          ? <Check size={14} className="text-white" strokeWidth={3} />
+          : <Camera size={14} className="text-[#B0A898] group-hover:text-[#C9A96E]" strokeWidth={2} />
+        }
       </div>
 
-      {/* Content */}
+      {/* Habit name + emoticon */}
       <div className="flex items-center gap-2.5 flex-1 min-w-0">
         {habit.emoticon && <span className="text-base flex-shrink-0">{habit.emoticon}</span>}
         <span
           className={cn(
             'text-sm font-medium truncate transition-colors',
-            completed ? 'text-[#7A7169] line-through' : 'text-[#1A1A1A]'
+            completed ? 'text-[#7A7169] line-through' : 'text-[#1A1A1A]',
           )}
         >
           {habit.name}
         </span>
       </div>
 
-      {/* Frequency & Streak badge */}
+      {/* Frequency + streak badge */}
       <div className="flex items-center gap-3 flex-shrink-0">
         {!completed && (
           <span className="text-xs text-[#B0A898] capitalize hidden sm:block">
