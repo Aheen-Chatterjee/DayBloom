@@ -20,8 +20,9 @@ USER_TEMPLATE = (
     "Does this image provide credible evidence that this habit was completed today?\n"
     'Respond ONLY with valid JSON: {{"approved": boolean, "verdict": "string"}}\n'
     "- If approved: verdict is a single dry sentence of acknowledgment.\n"
-    "- If rejected: verdict is 1-2 sentences of maximum sarcasm, calling out specifically "
-    "why the photo doesn't count."
+    "- If rejected: verdict MUST (1) name what you actually see in the image, and "
+    "(2) explain exactly why that doesn't prove the habit was completed. "
+    "Be sarcastic. Max 2 sentences. No vague dismissals — be specific."
 )
 
 
