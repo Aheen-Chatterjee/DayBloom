@@ -15,6 +15,7 @@ interface DailyChecklistProps {
   loadingHabits: boolean
   isCompleted: (habitId: string) => boolean
   onAddCompletion: (completion: Completion) => void
+  onRemoveCompletion: (habitId: string) => void
   streaks?: Record<string, { current_streak: number }>
 }
 
@@ -23,6 +24,7 @@ export function DailyChecklist({
   loadingHabits,
   isCompleted,
   onAddCompletion,
+  onRemoveCompletion,
   streaks,
 }: DailyChecklistProps) {
   const [proofHabitId, setProofHabitId] = useState<string | null>(null)
@@ -111,6 +113,7 @@ export function DailyChecklist({
             habit={habit}
             completed={isCompleted(habit.id)}
             onProofRequest={() => handleCheck(habit)}
+            onUncheck={() => onRemoveCompletion(habit.id)}
             streak={streaks?.[habit.id]?.current_streak || 0}
           />
         ))}

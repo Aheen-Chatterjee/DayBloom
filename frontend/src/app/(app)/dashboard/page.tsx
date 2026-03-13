@@ -23,7 +23,7 @@ const JOURNAL_PROMPTS = [
 export default function DashboardPage() {
   const { user } = useAuth()
   const { habits, loading: habitsLoading } = useHabits()
-  const { isCompleted, addCompletion } = useCompletions(todayISO())
+  const { isCompleted, addCompletion, removeCompletion } = useCompletions(todayISO())
   const { streaks, reload: reloadStreaks } = useAllStreaks()
   const today = todayISO()
 
@@ -84,6 +84,7 @@ export default function DashboardPage() {
               loadingHabits={habitsLoading}
               isCompleted={isCompleted}
               onAddCompletion={(c) => { addCompletion(c); setTimeout(reloadStreaks, 600) }}
+              onRemoveCompletion={(id) => { removeCompletion(id); setTimeout(reloadStreaks, 600) }}
               streaks={streaks}
             />
             {/* Quick-add habit button */}

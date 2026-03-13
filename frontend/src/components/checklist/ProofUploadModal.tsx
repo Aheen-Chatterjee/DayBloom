@@ -139,16 +139,31 @@ export function ProofUploadModal({ habit, onClose, onSuccess }: ProofUploadModal
     return (
       <Modal open onClose={onClose}>
         <div
-          className="flex flex-col items-center gap-4 text-center"
-          style={{ background: '#1E3D2F', margin: '-24px', borderRadius: '16px', padding: '48px 24px' }}
+          className="relative flex flex-col items-center gap-5 text-center"
+          style={{
+            background: 'linear-gradient(135deg, #081A10 0%, #0F2D1A 50%, #081A10 100%)',
+            border: '1px solid #2A6040',
+            margin: '-24px',
+            borderRadius: '16px',
+            padding: '40px 24px',
+          }}
         >
+          <button
+            onClick={onClose}
+            className="absolute top-4 right-4 w-8 h-8 flex items-center justify-center rounded-lg transition-colors"
+            style={{ color: 'rgba(168,196,176,0.6)' }}
+            onMouseEnter={e => (e.currentTarget.style.color = '#A8C4B0')}
+            onMouseLeave={e => (e.currentTarget.style.color = 'rgba(168,196,176,0.6)')}
+          >
+            <X size={16} />
+          </button>
           <div className="text-5xl">{habit.emoticon || '✅'}</div>
-          <CheckCircle size={40} className="text-white" />
-          <p style={{ fontFamily: '"Cormorant Garamond", serif', fontSize: '22px', fontWeight: 600, color: '#FFFFFF' }}>
+          <CheckCircle size={36} className="text-[#7AA88A]" />
+          <p style={{ fontFamily: '"Cormorant Garamond", serif', fontSize: '26px', fontWeight: 700, color: '#C8E6D0' }}>
             Verified.
           </p>
           {verdict && (
-            <p style={{ fontFamily: '"Cormorant Garamond", serif', fontSize: '17px', fontStyle: 'italic', color: '#A8C4B0', lineHeight: 1.5 }}>
+            <p style={{ fontFamily: '"Cormorant Garamond", serif', fontSize: '17px', fontStyle: 'italic', color: '#A8C4B0', lineHeight: 1.6 }}>
               &ldquo;{verdict}&rdquo;
             </p>
           )}

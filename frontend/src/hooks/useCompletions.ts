@@ -30,10 +30,23 @@ export function useCompletions(date: string = todayISO()) {
     })
   }, [])
 
+  const removeCompletion = useCallback(async (habitId: string) => {
+    const completion = completions.find(c => c.habit_id === habitId)
+    if (!completion) return
+    setCompletions(prev => prev.filter(c => c.habit_id !== habitId))
+    try {
+      await completionsApi.delete(completion.id)
+    } catch {
+      // Revert optimistic update on failure
+      setCompletions(prev => [...prev, completion])
+      showToast('Failed to uncheck habit', 'error')
+    }
+  }, [completions, showToast])
+
   const isCompleted = useCallback(
     (habitId: string) => completions.some(c => c.habit_id === habitId),
     [completions],
   )
 
-  return { completions, loading, addCompletion, isCompleted }
+  return { completions, loading, addCompletion, removeCompletion, isCompleted }
 }

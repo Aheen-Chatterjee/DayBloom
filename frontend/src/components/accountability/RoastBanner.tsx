@@ -1,10 +1,23 @@
 'use client'
 
+import { useEffect } from 'react'
 import { useRoast } from '@/context/RoastContext'
 import { Flame } from 'lucide-react'
 
 export function RoastBanner() {
   const { payload, dismiss } = useRoast()
+
+  useEffect(() => {
+    if (typeof window === 'undefined' || !('speechSynthesis' in window)) return
+
+    if (payload?.roast) {
+      window.speechSynthesis.cancel()
+      const utterance = new SpeechSynthesisUtterance(payload.roast)
+      window.speechSynthesis.speak(utterance)
+    } else {
+      window.speechSynthesis.cancel()
+    }
+  }, [payload])
 
   if (!payload) return null
 
