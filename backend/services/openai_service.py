@@ -31,10 +31,10 @@ Return JSON with this exact shape:
 
 
 def get_openai_client() -> Optional[OpenAI]:
-    if not settings.openai_api_key:
-        logger.warning("OPENAI_API_KEY not set — analysis skipped")
+    if not settings.openai_api:
+        logger.warning("OPENAI_API not set — analysis skipped")
         return None
-    return OpenAI(api_key=settings.openai_api_key)
+    return OpenAI(api_key=settings.openai_api)
 
 
 def analyse_journal_entry(entry_id: str, entry_date: str, body: str, db) -> None:
