@@ -1,7 +1,7 @@
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from config import settings
-from routers import health, journal, habits, completions, streaks, insights, wrapped
+from routers import health, journal, habits, completions, streaks, insights, wrapped, accountability
 
 app = FastAPI(title="DayBloom API", version="1.0.0")
 
@@ -20,3 +20,4 @@ app.include_router(completions.router, prefix="/api/v1")
 app.include_router(streaks.router, prefix="/api/v1")
 app.include_router(insights.router, prefix="/api/v1")
 app.include_router(wrapped.router, prefix="/api/v1")
+app.include_router(accountability.router, prefix="/api/v1")

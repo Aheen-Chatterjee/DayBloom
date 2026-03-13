@@ -32,3 +32,5 @@ ALTER TABLE wrapped_reports ENABLE ROW LEVEL SECURITY;
 
 CREATE POLICY "Users manage own wrapped reports" ON wrapped_reports
   FOR ALL USING (auth.uid() = user_id);
+
+

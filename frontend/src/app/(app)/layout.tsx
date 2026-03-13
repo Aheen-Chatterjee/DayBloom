@@ -3,6 +3,7 @@ export const dynamic = 'force-dynamic'
 import { AuthGuard } from '@/components/layout/AuthGuard'
 import { Sidebar } from '@/components/layout/Sidebar'
 import { MobileNav } from '@/components/layout/MobileNav'
+import { AccountabilityPoller } from '@/components/accountability/AccountabilityPoller'
 
 export default function AppLayout({ children }: { children: React.ReactNode }) {
   return (
@@ -13,6 +14,7 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
           {children}
         </main>
         <MobileNav />
+        <AccountabilityPoller />
       </div>
     </AuthGuard>
   )

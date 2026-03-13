@@ -2,7 +2,7 @@
 
 import { createContext, useContext, useState, useCallback, ReactNode } from 'react'
 
-export type ToastType = 'success' | 'error' | 'info'
+export type ToastType = 'success' | 'error' | 'info' | 'roast'
 
 interface Toast {
   id: string
@@ -32,7 +32,8 @@ export function ToastProvider({ children }: { children: ReactNode }) {
   const showToast = useCallback((message: string, type: ToastType = 'success') => {
     const id = Math.random().toString(36).slice(2)
     setToasts(prev => [...prev, { id, message, type }])
-    setTimeout(() => removeToast(id), 4000)
+    const duration = type === 'roast' ? 15000 : 4000
+    setTimeout(() => removeToast(id), duration)
   }, [removeToast])
 
   return (
