@@ -124,7 +124,9 @@ async def update_entry(
         raise HTTPException(status_code=404, detail="Entry not found")
 
     entry = resp.data[0]
-    if "body" in update_data and update_data["body"] and len(update_data["body"].strip()) >= 20:
+    # Only analyse if not yet analysed (analysis_status is null or pending, not done/skipped)
+    already_analysed = entry.get("analysis_status") in ("done", "skipped")
+    if "body" in update_data and update_data["body"] and len(update_data["body"].strip()) >= 20 and not already_analysed:
         entry_date = str(entry.get("entry_date", date.today().isoformat()))
         background_tasks.add_task(
             analyse_journal_entry,
