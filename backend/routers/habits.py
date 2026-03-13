@@ -33,6 +33,7 @@ async def create_habit(body: HabitCreate, user_id: str = Depends(get_current_use
             "emoticon": body.emoticon,
             "color": body.color,
             "frequency": body.frequency,
+            "requires_proof": body.requires_proof,
         })
         .execute()
     )

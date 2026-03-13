@@ -3,6 +3,8 @@
 import { useState } from 'react'
 import { Habit } from '@/types/habits'
 import { Completion } from '@/types/completions'
+import { completionsApi } from '@/lib/api/completions'
+import { todayISO } from '@/lib/utils/dates'
 import { ChecklistItem } from './ChecklistItem'
 import { ProofUploadModal } from './ProofUploadModal'
 import { EmptyState } from '@/components/common/EmptyState'
@@ -24,6 +26,24 @@ export function DailyChecklist({
   streaks,
 }: DailyChecklistProps) {
   const [proofHabitId, setProofHabitId] = useState<string | null>(null)
+  const [completing, setCompleting] = useState<string | null>(null)
+
+  const handleCheck = async (habit: Habit) => {
+    if (habit.requires_proof) {
+      setProofHabitId(habit.id)
+      return
+    }
+    if (completing === habit.id) return
+    setCompleting(habit.id)
+    try {
+      const completion = await completionsApi.create(habit.id, todayISO())
+      onAddCompletion(completion)
+    } catch {
+      // ignore — already completed or other transient error
+    } finally {
+      setCompleting(null)
+    }
+  }
 
   if (loadingHabits) {
     return <div className="flex justify-center py-8"><Spinner /></div>
@@ -77,10 +97,10 @@ export function DailyChecklist({
 
           <div className="flex-1">
             <h3 className="text-base font-semibold text-[#1A1A1A] mb-0.5">
-              {completed} of {habits.length} habits verified
+              {completed} of {habits.length} habits done
             </h3>
             <p className="text-sm font-medium text-[#7A7169]">
-              {allDone ? 'Perfect day! You bloomed ✨' : 'Prove it 📸'}
+              {allDone ? 'Perfect day! You bloomed ✨' : 'Keep going 📸'}
             </p>
           </div>
         </div>
@@ -90,7 +110,7 @@ export function DailyChecklist({
             key={habit.id}
             habit={habit}
             completed={isCompleted(habit.id)}
-            onProofRequest={() => setProofHabitId(habit.id)}
+            onProofRequest={() => handleCheck(habit)}
             streak={streaks?.[habit.id]?.current_streak || 0}
           />
         ))}

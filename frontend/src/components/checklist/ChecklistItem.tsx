@@ -34,7 +34,9 @@ export function ChecklistItem({ habit, completed, onProofRequest, streak = 0 }: 
       >
         {completed
           ? <Check size={14} className="text-white" strokeWidth={3} />
-          : <Camera size={14} className="text-[#B0A898] group-hover:text-[#C9A96E]" strokeWidth={2} />
+          : habit.requires_proof
+            ? <Camera size={14} className="text-[#B0A898] group-hover:text-[#C9A96E]" strokeWidth={2} />
+            : <Check size={14} className="text-[#B0A898] group-hover:text-[#C9A96E]" strokeWidth={2.5} />
         }
       </div>
 

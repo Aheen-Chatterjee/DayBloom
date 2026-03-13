@@ -9,6 +9,7 @@ class HabitCreate(BaseModel):
     emoticon: Optional[str] = None
     color: Optional[str] = "#8B7355"
     frequency: Literal["daily", "weekdays", "custom"] = "daily"
+    requires_proof: bool = True
 
 
 class HabitUpdate(BaseModel):
@@ -17,6 +18,7 @@ class HabitUpdate(BaseModel):
     emoticon: Optional[str] = None
     color: Optional[str] = None
     frequency: Optional[Literal["daily", "weekdays", "custom"]] = None
+    requires_proof: Optional[bool] = None
 
 
 class HabitResponse(BaseModel):
@@ -27,6 +29,7 @@ class HabitResponse(BaseModel):
     emoticon: Optional[str]
     color: Optional[str]
     frequency: str
+    requires_proof: bool = True
     created_at: datetime
     archived_at: Optional[datetime]
 

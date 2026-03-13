@@ -22,6 +22,13 @@ export const completionsApi = {
     return apiFetch(`/api/v1/completions?date=${date}`)
   },
 
+  create(habitId: string, date: string): Promise<Completion> {
+    return apiFetch(`/api/v1/completions`, {
+      method: 'POST',
+      body: JSON.stringify({ habit_id: habitId, completion_date: date }),
+    })
+  },
+
   delete(id: string): Promise<void> {
     return apiFetch(`/api/v1/completions/${id}`, { method: 'DELETE' })
   },

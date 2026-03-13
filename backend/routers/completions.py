@@ -6,7 +6,7 @@ from fastapi.responses import JSONResponse
 
 from database import get_db
 from dependencies import get_current_user
-from schemas.completions import CompletionResponse
+from schemas.completions import CompletionCreate, CompletionResponse
 from services.proof_service import verify_habit_proof
 
 logger = logging.getLogger(__name__)
@@ -43,6 +43,55 @@ async def list_completions(
         .execute()
     )
     return resp.data
+
+
+@router.post("", response_model=CompletionResponse, status_code=status.HTTP_201_CREATED)
+async def create_completion(body: CompletionCreate, user_id: str = Depends(get_current_user)):
+    """Complete a habit directly (no proof required). Validates habit ownership."""
+    db = get_db()
+
+    habit_resp = (
+        db.table("habits")
+        .select("id, requires_proof")
+        .eq("id", body.habit_id)
+        .eq("user_id", user_id)
+        .is_("archived_at", "null")
+        .execute()
+    )
+    if not habit_resp.data:
+        raise HTTPException(status_code=404, detail="Habit not found")
+    if habit_resp.data[0].get("requires_proof", True):
+        raise HTTPException(status_code=403, detail="This habit requires photo proof")
+
+    existing = (
+        db.table("habit_completions")
+        .select("id")
+        .eq("habit_id", body.habit_id)
+        .eq("user_id", user_id)
+        .eq("completion_date", body.completion_date.isoformat())
+        .execute()
+    )
+    if existing.data:
+        raise HTTPException(status_code=409, detail="Already completed today")
+
+    try:
+        resp = (
+            db.table("habit_completions")
+            .insert({
+                "habit_id": body.habit_id,
+                "user_id": user_id,
+                "completion_date": body.completion_date.isoformat(),
+                "note": body.note,
+            })
+            .execute()
+        )
+    except Exception as exc:
+        if "duplicate" in str(exc).lower() or "unique" in str(exc).lower():
+            raise HTTPException(status_code=409, detail="Already completed today")
+        logger.error("Failed to insert completion: %s", exc)
+        raise HTTPException(status_code=500, detail="Failed to record completion")
+
+    return resp.data[0]
 
 
 @router.post(

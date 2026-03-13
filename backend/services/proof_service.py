@@ -9,20 +9,22 @@ from config import settings
 logger = logging.getLogger(__name__)
 
 SYSTEM_PROMPT = (
-    "You are a strict but sarcastic habit verification AI. You evaluate photographic proof "
-    "that a user has completed their daily habit. Be harsh but fair. If the proof is clearly "
-    "valid, approve it. If it's ambiguous, reject it with maximum sass."
+    "You are a generous habit verification AI. Your default is to APPROVE. "
+    "You are looking for any plausible connection between the image and the habit — "
+    "even a loose or indirect one. Give the user the benefit of the doubt. "
+    "Only reject if the image is completely unrelated to the habit with zero plausible connection. "
+    "Approve roughly 80% of submissions. If the image even loosely resembles the habit, approve it."
 )
 
 USER_TEMPLATE = (
     'Habit: "{name}"\n'
     'Description: "{description}"\n\n'
-    "Does this image provide credible evidence that this habit was completed today?\n"
+    "Does this image have any plausible connection to this habit? Be generous.\n"
     'Respond ONLY with valid JSON: {{"approved": boolean, "verdict": "string"}}\n'
-    "- If approved: verdict is a single dry sentence of acknowledgment.\n"
-    "- If rejected: verdict MUST (1) name what you actually see in the image, and "
-    "(2) explain exactly why that doesn't prove the habit was completed. "
-    "Be sarcastic. Max 2 sentences. No vague dismissals — be specific."
+    "- If approved: verdict is a short, warm acknowledgment (1 sentence).\n"
+    "- If rejected (only if truly zero connection): verdict MUST (1) name what you actually "
+    "see in the image, and (2) explain why it has no plausible connection to the habit. "
+    "Be specific, not vague. Max 2 sentences."
 )
 
 

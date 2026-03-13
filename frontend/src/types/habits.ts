@@ -8,6 +8,7 @@ export interface Habit {
   emoticon: string | null
   color: string | null
   frequency: HabitFrequency
+  requires_proof: boolean
   created_at: string
   archived_at: string | null
 }
@@ -18,6 +19,7 @@ export interface CreateHabit {
   emoticon?: string
   color?: string
   frequency?: HabitFrequency
+  requires_proof?: boolean
 }
 
 export interface UpdateHabit {
@@ -26,4 +28,5 @@ export interface UpdateHabit {
   emoticon?: string
   color?: string
   frequency?: HabitFrequency
+  requires_proof?: boolean
 }
