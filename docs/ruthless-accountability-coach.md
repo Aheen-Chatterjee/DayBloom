@@ -2,7 +2,7 @@
 
 An autonomous dual-agent feature that detects broken habit streaks and fires a brutally personalised in-app roast, pulling ammo directly from the user's own journal entries.
 
----
+--- THE ROAST MY TASTE FEATURE
 
 ## How It Works (Overview)
 
