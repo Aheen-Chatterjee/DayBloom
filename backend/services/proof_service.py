@@ -3,7 +3,7 @@ import base64
 import json
 import logging
 from dataclasses import dataclass
-from openai import OpenAI
+from openai import AsyncOpenAI
 from config import settings
 
 logger = logging.getLogger(__name__)
@@ -50,13 +50,13 @@ async def verify_habit_proof(
         logger.warning("OPENAI_API not set — auto-approving proof")
         return FALLBACK_RESULT
 
-    client = OpenAI(api_key=settings.openai_api)
+    client = AsyncOpenAI(api_key=settings.openai_api)
 
     try:
         b64 = base64.standard_b64encode(image_bytes).decode("utf-8")
         description = habit_description or "No description provided"
 
-        response = client.chat.completions.create(
+        response = await client.chat.completions.create(
             model="gpt-4o",
             messages=[
                 {"role": "system", "content": SYSTEM_PROMPT},
