@@ -5,7 +5,7 @@ import Link from 'next/link'
 import { usePathname } from 'next/navigation'
 import { cn } from '@/lib/utils/cn'
 import { Sun, BookOpen, CheckSquare, BarChart2, Sparkles, Flame } from 'lucide-react'
-import { useToast } from '@/context/ToastContext'
+import { useRoast } from '@/context/RoastContext'
 import { fetchRoast } from '@/lib/api/accountability'
 
 const TABS = [
@@ -18,7 +18,7 @@ const TABS = [
 
 export function MobileNav() {
   const pathname = usePathname()
-  const { showToast } = useToast()
+  const { show } = useRoast()
   const [roasting, setRoasting] = useState(false)
 
   async function handleRoastMe() {
@@ -27,12 +27,10 @@ export function MobileNav() {
     try {
       const data = await fetchRoast(true)
       if (data.roast) {
-        showToast(data.roast, 'roast')
-      } else {
-        showToast('The coach has nothing to say. Suspicious.', 'info')
+        show({ roast: data.roast, broken_habits: data.broken_habits })
       }
     } catch {
-      showToast('The roast machine broke. Try again.', 'error')
+      // silent
     } finally {
       setRoasting(false)
     }

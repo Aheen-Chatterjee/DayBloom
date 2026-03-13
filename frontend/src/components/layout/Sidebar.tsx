@@ -4,7 +4,7 @@ import { useState } from 'react'
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
 import { useAuth } from '@/context/AuthContext'
-import { useToast } from '@/context/ToastContext'
+import { useRoast } from '@/context/RoastContext'
 import { fetchRoast } from '@/lib/api/accountability'
 import { cn } from '@/lib/utils/cn'
 import { useAllStreaks } from '@/hooks/useStreaks'
@@ -38,7 +38,7 @@ export function Sidebar() {
 
   const { streaks } = useAllStreaks()
   const globalStreak = Math.max(0, ...Object.values(streaks).map(s => s.current_streak))
-  const { showToast } = useToast()
+  const { show } = useRoast()
   const [roasting, setRoasting] = useState(false)
 
   async function handleRoastMe() {
@@ -47,12 +47,10 @@ export function Sidebar() {
     try {
       const data = await fetchRoast(true)
       if (data.roast) {
-        showToast(data.roast, 'roast')
-      } else {
-        showToast('The coach has nothing to say. Suspicious.', 'info')
+        show({ roast: data.roast, broken_habits: data.broken_habits })
       }
     } catch {
-      showToast('The roast machine broke. Try again.', 'error')
+      // silent
     } finally {
       setRoasting(false)
     }

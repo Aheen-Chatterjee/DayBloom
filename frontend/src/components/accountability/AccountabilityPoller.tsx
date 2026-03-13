@@ -1,13 +1,13 @@
 'use client'
 
 import { useEffect, useRef } from 'react'
-import { useToast } from '@/context/ToastContext'
+import { useRoast } from '@/context/RoastContext'
 import { fetchRoast } from '@/lib/api/accountability'
 
 const POLL_INTERVAL_MS = 2 * 60 * 1000 // 2 minutes
 
 export function AccountabilityPoller() {
-  const { showToast } = useToast()
+  const { show } = useRoast()
   const inFlight = useRef(false)
 
   async function checkAndRoast() {
@@ -16,10 +16,10 @@ export function AccountabilityPoller() {
     try {
       const data = await fetchRoast()
       if (data.roast) {
-        showToast(data.roast, 'roast')
+        show({ roast: data.roast, broken_habits: data.broken_habits })
       }
     } catch {
-      // Silent fail — accountability coach takes a day off
+      // Silent fail
     } finally {
       inFlight.current = false
     }
