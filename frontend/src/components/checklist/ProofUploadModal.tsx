@@ -1,7 +1,7 @@
 'use client'
 
 import { useRef, useState, useCallback, useEffect } from 'react'
-import { Camera, Upload, X, CheckCircle } from 'lucide-react'
+import { Camera, Upload, X, CheckCircle, ZapOff } from 'lucide-react'
 import confetti from 'canvas-confetti'
 import { Modal } from '@/components/ui/Modal'
 import { useProofSubmission } from '@/hooks/useProofSubmission'
@@ -19,19 +19,38 @@ export function ProofUploadModal({ habit, onClose, onSuccess }: ProofUploadModal
   const [selectedFile, setSelectedFile] = useState<File | null>(null)
   const [previewUrl, setPreviewUrl] = useState<string | null>(null)
   const [dragOver, setDragOver] = useState(false)
+  const [cameraMode, setCameraMode] = useState(false)
+  const [cameraError, setCameraError] = useState<string | null>(null)
+
   const fileInputRef = useRef<HTMLInputElement>(null)
-  const cameraInputRef = useRef<HTMLInputElement>(null)
+  const videoRef = useRef<HTMLVideoElement>(null)
+  const streamRef = useRef<MediaStream | null>(null)
   const confettiFiredRef = useRef(false)
 
-  const handleSuccess = useCallback((completion: Completion) => {
-    onSuccess(completion)
-  }, [onSuccess])
-
-  const { state, verdict, submit, reset } = useProofSubmission(handleSuccess)
+  const { state, verdict, submit, reset } = useProofSubmission(
+    useCallback((c: Completion) => onSuccess(c), [onSuccess])
+  )
 
   const locked = state === 'uploading' || state === 'verifying'
 
-  // Fire confetti and auto-close when approved
+  // Stop camera stream on unmount
+  useEffect(() => {
+    return () => {
+      streamRef.current?.getTracks().forEach(t => t.stop())
+      if (previewUrl) URL.revokeObjectURL(previewUrl)
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [])
+
+  // Wire stream to video element when camera mode activates
+  useEffect(() => {
+    if (cameraMode && videoRef.current && streamRef.current) {
+      videoRef.current.srcObject = streamRef.current
+      videoRef.current.play().catch(() => {})
+    }
+  }, [cameraMode])
+
+  // Confetti + auto-close on approval
   useEffect(() => {
     if (state === 'approved' && !confettiFiredRef.current) {
       confettiFiredRef.current = true
@@ -42,17 +61,10 @@ export function ProofUploadModal({ habit, onClose, onSuccess }: ProofUploadModal
         colors: ['#4E7D5E', '#C9A96E', '#7AA88A', '#1E3D2F'],
         disableForReducedMotion: true,
       })
-      const timer = setTimeout(onClose, 1800)
-      return () => clearTimeout(timer)
+      const t = setTimeout(onClose, 1800)
+      return () => clearTimeout(t)
     }
   }, [state, onClose])
-
-  // Revoke object URL on unmount to prevent memory leaks
-  useEffect(() => {
-    return () => {
-      if (previewUrl) URL.revokeObjectURL(previewUrl)
-    }
-  }, [previewUrl])
 
   const handleFile = (file: File) => {
     if (!file.type.startsWith('image/')) return
@@ -71,6 +83,48 @@ export function ProofUploadModal({ habit, onClose, onSuccess }: ProofUploadModal
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0]
     if (file) handleFile(file)
+    // Reset input so same file can be re-selected
+    e.target.value = ''
+  }
+
+  const startCamera = async () => {
+    setCameraError(null)
+    try {
+      const stream = await navigator.mediaDevices.getUserMedia({
+        video: { facingMode: 'environment', width: { ideal: 1280 }, height: { ideal: 720 } },
+      })
+      streamRef.current = stream
+      setCameraMode(true)
+    } catch (err) {
+      const name = err instanceof Error ? err.name : ''
+      if (name === 'NotAllowedError' || name === 'PermissionDeniedError') {
+        setCameraError('Camera access denied. Allow it in your browser settings.')
+      } else if (name === 'NotFoundError' || name === 'DevicesNotFoundError') {
+        setCameraError('No camera found on this device.')
+      } else {
+        setCameraError('Could not access camera. Upload a photo instead.')
+      }
+    }
+  }
+
+  const stopCamera = () => {
+    streamRef.current?.getTracks().forEach(t => t.stop())
+    streamRef.current = null
+    setCameraMode(false)
+  }
+
+  const capturePhoto = () => {
+    const video = videoRef.current
+    if (!video) return
+    const canvas = document.createElement('canvas')
+    canvas.width = video.videoWidth
+    canvas.height = video.videoHeight
+    canvas.getContext('2d')?.drawImage(video, 0, 0)
+    canvas.toBlob(blob => {
+      if (!blob) return
+      handleFile(new File([blob], 'camera-proof.jpg', { type: 'image/jpeg' }))
+      stopCamera()
+    }, 'image/jpeg', 0.92)
   }
 
   const handleTryAgain = () => {
@@ -174,6 +228,40 @@ export function ProofUploadModal({ habit, onClose, onSuccess }: ProofUploadModal
     )
   }
 
+  // ─── CAMERA VIEW ─────────────────────────────────────────────
+  if (cameraMode) {
+    return (
+      <Modal open onClose={stopCamera} title="Take a Photo">
+        <div className="flex flex-col gap-4">
+          <div className="relative rounded-xl overflow-hidden bg-black" style={{ aspectRatio: '4/3' }}>
+            <video
+              ref={videoRef}
+              autoPlay
+              playsInline
+              muted
+              className="w-full h-full object-cover"
+            />
+          </div>
+          <div className="flex gap-2">
+            <button
+              onClick={stopCamera}
+              className="flex-1 py-2.5 rounded-xl text-sm font-semibold border border-[#E2DBD0] text-[#7A7169] hover:bg-[#F0EDE4] transition-all duration-150"
+            >
+              Cancel
+            </button>
+            <button
+              onClick={capturePhoto}
+              className="flex-[2] flex items-center justify-center gap-2 py-2.5 rounded-xl text-sm font-semibold bg-[#1E3D2F] text-white hover:bg-[#2A5940] transition-all duration-150"
+            >
+              <Camera size={15} strokeWidth={2} />
+              Capture
+            </button>
+          </div>
+        </div>
+      </Modal>
+    )
+  }
+
   // ─── IDLE ────────────────────────────────────────────────────
   return (
     <Modal open onClose={locked ? () => {} : onClose} title={`Prove it: ${habit.name}`}>
@@ -182,19 +270,10 @@ export function ProofUploadModal({ habit, onClose, onSuccess }: ProofUploadModal
           No more free checkboxes. Upload a photo proving you actually did this.
         </p>
 
-        {/* Hidden file inputs */}
         <input
           ref={fileInputRef}
           type="file"
           accept="image/*"
-          className="hidden"
-          onChange={handleFileChange}
-        />
-        <input
-          ref={cameraInputRef}
-          type="file"
-          accept="image/*"
-          capture="environment"
           className="hidden"
           onChange={handleFileChange}
         />
@@ -233,10 +312,18 @@ export function ProofUploadModal({ habit, onClose, onSuccess }: ProofUploadModal
           )}
         </div>
 
+        {/* Camera error */}
+        {cameraError && (
+          <div className="flex items-start gap-2 p-3 rounded-xl bg-[#FFF3F3] border border-[#FFCCCC]">
+            <ZapOff size={14} className="text-[#B5534D] mt-0.5 flex-shrink-0" />
+            <p className="text-xs text-[#B5534D]">{cameraError}</p>
+          </div>
+        )}
+
         {/* Camera + re-pick row */}
         <div className="flex gap-2">
           <button
-            onClick={() => cameraInputRef.current?.click()}
+            onClick={startCamera}
             className="flex-1 flex items-center justify-center gap-2 py-2.5 rounded-xl text-sm font-semibold border border-[#E2DBD0] text-[#4E7D5E] hover:bg-[#F0EDE4] hover:border-[#C9A96E] transition-all duration-150"
           >
             <Camera size={15} strokeWidth={2} />
