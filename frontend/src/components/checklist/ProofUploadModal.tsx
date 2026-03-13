@@ -1,7 +1,7 @@
 'use client'
 
 import { useRef, useState, useCallback, useEffect } from 'react'
-import { Upload, X, CheckCircle } from 'lucide-react'
+import { Camera, Upload, X, CheckCircle } from 'lucide-react'
 import confetti from 'canvas-confetti'
 import { Modal } from '@/components/ui/Modal'
 import { useProofSubmission } from '@/hooks/useProofSubmission'
@@ -20,6 +20,7 @@ export function ProofUploadModal({ habit, onClose, onSuccess }: ProofUploadModal
   const [previewUrl, setPreviewUrl] = useState<string | null>(null)
   const [dragOver, setDragOver] = useState(false)
   const fileInputRef = useRef<HTMLInputElement>(null)
+  const cameraInputRef = useRef<HTMLInputElement>(null)
   const confettiFiredRef = useRef(false)
 
   const handleSuccess = useCallback((completion: Completion) => {
@@ -181,6 +182,23 @@ export function ProofUploadModal({ habit, onClose, onSuccess }: ProofUploadModal
           No more free checkboxes. Upload a photo proving you actually did this.
         </p>
 
+        {/* Hidden file inputs */}
+        <input
+          ref={fileInputRef}
+          type="file"
+          accept="image/*"
+          className="hidden"
+          onChange={handleFileChange}
+        />
+        <input
+          ref={cameraInputRef}
+          type="file"
+          accept="image/*"
+          capture="environment"
+          className="hidden"
+          onChange={handleFileChange}
+        />
+
         {/* Drop zone */}
         <div
           onDragOver={e => { e.preventDefault(); setDragOver(true) }}
@@ -196,13 +214,6 @@ export function ProofUploadModal({ habit, onClose, onSuccess }: ProofUploadModal
             previewUrl ? 'p-2 min-h-[200px]' : 'p-10',
           )}
         >
-          <input
-            ref={fileInputRef}
-            type="file"
-            accept="image/*"
-            className="hidden"
-            onChange={handleFileChange}
-          />
           {previewUrl ? (
             <img
               src={previewUrl}
@@ -222,14 +233,24 @@ export function ProofUploadModal({ habit, onClose, onSuccess }: ProofUploadModal
           )}
         </div>
 
-        {previewUrl && (
+        {/* Camera + re-pick row */}
+        <div className="flex gap-2">
           <button
-            onClick={() => fileInputRef.current?.click()}
-            className="text-xs text-[#7A7169] hover:text-[#4E7D5E] transition-colors text-center"
+            onClick={() => cameraInputRef.current?.click()}
+            className="flex-1 flex items-center justify-center gap-2 py-2.5 rounded-xl text-sm font-semibold border border-[#E2DBD0] text-[#4E7D5E] hover:bg-[#F0EDE4] hover:border-[#C9A96E] transition-all duration-150"
           >
-            Choose a different photo
+            <Camera size={15} strokeWidth={2} />
+            Take Photo
           </button>
-        )}
+          {previewUrl && (
+            <button
+              onClick={() => fileInputRef.current?.click()}
+              className="flex-1 py-2.5 rounded-xl text-sm font-semibold border border-[#E2DBD0] text-[#7A7169] hover:bg-[#F0EDE4] transition-all duration-150"
+            >
+              Choose Different
+            </button>
+          )}
+        </div>
 
         <button
           onClick={() => selectedFile && submit(habit.id, selectedFile)}
