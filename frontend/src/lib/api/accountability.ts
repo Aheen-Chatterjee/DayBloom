@@ -11,6 +11,7 @@ export interface RoastResponse {
   }>
 }
 
-export async function fetchRoast(): Promise<RoastResponse> {
-  return apiFetch<RoastResponse>('/api/v1/accountability/roast')
+export async function fetchRoast(force = false): Promise<RoastResponse> {
+  const qs = force ? '?force=true' : ''
+  return apiFetch<RoastResponse>(`/api/v1/accountability/roast${qs}`)
 }

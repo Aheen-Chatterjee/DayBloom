@@ -1,8 +1,11 @@
 'use client'
 
+import { useState } from 'react'
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
 import { useAuth } from '@/context/AuthContext'
+import { useToast } from '@/context/ToastContext'
+import { fetchRoast } from '@/lib/api/accountability'
 import { cn } from '@/lib/utils/cn'
 import { useAllStreaks } from '@/hooks/useStreaks'
 import {
@@ -35,6 +38,25 @@ export function Sidebar() {
 
   const { streaks } = useAllStreaks()
   const globalStreak = Math.max(0, ...Object.values(streaks).map(s => s.current_streak))
+  const { showToast } = useToast()
+  const [roasting, setRoasting] = useState(false)
+
+  async function handleRoastMe() {
+    if (roasting) return
+    setRoasting(true)
+    try {
+      const data = await fetchRoast(true)
+      if (data.roast) {
+        showToast(data.roast, 'roast')
+      } else {
+        showToast('The coach has nothing to say. Suspicious.', 'info')
+      }
+    } catch {
+      showToast('The roast machine broke. Try again.', 'error')
+    } finally {
+      setRoasting(false)
+    }
+  }
 
   return (
     <nav
@@ -130,6 +152,22 @@ export function Sidebar() {
             </span>
           </div>
         )}
+
+        <button
+          onClick={handleRoastMe}
+          disabled={roasting}
+          className="w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-semibold transition-all duration-200 mb-1"
+          style={{
+            background: roasting ? '#3D1A1A' : '#5C1A1A',
+            color: roasting ? '#A06060' : '#F5C0C0',
+            opacity: roasting ? 0.7 : 1,
+          }}
+          onMouseEnter={e => { if (!roasting) e.currentTarget.style.background = '#7A2020' }}
+          onMouseLeave={e => { if (!roasting) e.currentTarget.style.background = '#5C1A1A' }}
+        >
+          <Flame size={18} strokeWidth={2} />
+          {roasting ? 'Roasting...' : 'Roast Me'}
+        </button>
 
         <div className="space-y-0.5">
           <Link

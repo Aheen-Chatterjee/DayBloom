@@ -1,9 +1,12 @@
 'use client'
 
+import { useState } from 'react'
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
 import { cn } from '@/lib/utils/cn'
-import { Sun, BookOpen, CheckSquare, BarChart2, Sparkles } from 'lucide-react'
+import { Sun, BookOpen, CheckSquare, BarChart2, Sparkles, Flame } from 'lucide-react'
+import { useToast } from '@/context/ToastContext'
+import { fetchRoast } from '@/lib/api/accountability'
 
 const TABS = [
   { href: '/dashboard', label: 'Today', icon: Sun },
@@ -15,6 +18,25 @@ const TABS = [
 
 export function MobileNav() {
   const pathname = usePathname()
+  const { showToast } = useToast()
+  const [roasting, setRoasting] = useState(false)
+
+  async function handleRoastMe() {
+    if (roasting) return
+    setRoasting(true)
+    try {
+      const data = await fetchRoast(true)
+      if (data.roast) {
+        showToast(data.roast, 'roast')
+      } else {
+        showToast('The coach has nothing to say. Suspicious.', 'info')
+      }
+    } catch {
+      showToast('The roast machine broke. Try again.', 'error')
+    } finally {
+      setRoasting(false)
+    }
+  }
 
   return (
     <nav className="md:hidden fixed bottom-0 left-0 right-0 bg-white border-t border-[#E2DBD0] pb-safe flex items-center justify-around px-2 py-2 z-50 shadow-[0_-4px_20px_rgba(0,0,0,0.03)]">
@@ -36,6 +58,17 @@ export function MobileNav() {
           </Link>
         )
       })}
+
+      {/* Roast Me button */}
+      <button
+        onClick={handleRoastMe}
+        disabled={roasting}
+        className="flex flex-col items-center justify-center w-16 h-12 gap-1 rounded-xl transition-all duration-200"
+        style={{ color: roasting ? '#A06060' : '#C05050' }}
+      >
+        <Flame size={20} strokeWidth={2} />
+        <span className="text-[10px] font-semibold tracking-wide">{roasting ? '...' : 'Roast'}</span>
+      </button>
     </nav>
   )
 }

@@ -76,7 +76,10 @@ def auditor_node(state: AccountabilityState) -> dict:
 
 
 def _route_after_audit(state: AccountabilityState) -> str:
-    return "journal" if state["broken_habits"] else END
+    # If force=True was set, broken_habits will contain a sentinel entry
+    if state.get("broken_habits"):
+        return "journal"
+    return END
 
 
 # ---------------------------------------------------------------------------
@@ -156,13 +159,18 @@ def enforcer_node(state: AccountabilityState) -> dict:
         return {"roast_message": None}
 
     broken = state["broken_habits"]
-    # Sort worst offenders first
-    broken_sorted = sorted(broken, key=lambda h: h["days_missed"], reverse=True)
-    habits_text = "\n".join(
-        f"- {h['emoticon']} {h['name']}: {h['days_missed']} days missed"
-        + (f" ({h['description']})" if h["description"] else "")
-        for h in broken_sorted
-    )
+    # Filter out the force-mode sentinel entry
+    real_broken = [h for h in broken if h.get("name") != "everything"]
+    broken_sorted = sorted(real_broken, key=lambda h: h["days_missed"], reverse=True)
+
+    if broken_sorted:
+        habits_text = "\n".join(
+            f"- {h['emoticon']} {h['name']}: {h['days_missed']} days missed"
+            + (f" ({h['description']})" if h["description"] else "")
+            for h in broken_sorted
+        )
+    else:
+        habits_text = "(No specific broken habits — roast based purely on what the journal reveals about their character.)"
 
     llm = ChatOpenAI(model="gpt-4o", api_key=settings.openai_api, temperature=1.0, max_tokens=120)
 
