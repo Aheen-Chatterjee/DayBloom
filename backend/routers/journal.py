@@ -1,4 +1,4 @@
-from fastapi import APIRouter, Depends, HTTPException, Query, status
+from fastapi import APIRouter, BackgroundTasks, Depends, HTTPException, Query, status
 from datetime import date
 from database import get_db
 from dependencies import get_current_user
@@ -8,6 +8,7 @@ from schemas.journal import (
     JournalEntryResponse,
     JournalListResponse,
 )
+from services.openai_service import analyse_journal_entry
 
 router = APIRouter(prefix="/journal", tags=["journal"])
 
@@ -53,6 +54,7 @@ async def list_entries(
 @router.post("/entries", response_model=JournalEntryResponse, status_code=status.HTTP_201_CREATED)
 async def create_entry(
     body: JournalEntryCreate,
+    background_tasks: BackgroundTasks,
     user_id: str = Depends(get_current_user),
 ):
     db = get_db()
@@ -63,10 +65,20 @@ async def create_entry(
             "entry_date": body.entry_date.isoformat(),
             "title": body.title,
             "body": body.body,
+            "analysis_status": "pending",
         })
         .execute()
     )
-    return resp.data[0]
+    entry = resp.data[0]
+    if body.body and len(body.body.strip()) >= 20:
+        background_tasks.add_task(
+            analyse_journal_entry,
+            entry["id"],
+            body.entry_date.isoformat(),
+            body.body,
+            db,
+        )
+    return entry
 
 
 @router.get("/entries/{entry_id}", response_model=JournalEntryResponse)
@@ -90,6 +102,7 @@ async def get_entry(entry_id: str, user_id: str = Depends(get_current_user)):
 async def update_entry(
     entry_id: str,
     body: JournalEntryUpdate,
+    background_tasks: BackgroundTasks,
     user_id: str = Depends(get_current_user),
 ):
     db = get_db()
@@ -109,7 +122,18 @@ async def update_entry(
     )
     if not resp.data:
         raise HTTPException(status_code=404, detail="Entry not found")
-    return resp.data[0]
+
+    entry = resp.data[0]
+    if "body" in update_data and update_data["body"] and len(update_data["body"].strip()) >= 20:
+        entry_date = str(entry.get("entry_date", date.today().isoformat()))
+        background_tasks.add_task(
+            analyse_journal_entry,
+            entry_id,
+            entry_date,
+            update_data["body"],
+            db,
+        )
+    return entry
 
 
 @router.delete("/entries/{entry_id}", status_code=status.HTTP_204_NO_CONTENT)
@@ -125,3 +149,32 @@ async def delete_entry(entry_id: str, user_id: str = Depends(get_current_user)):
     )
     if not resp.data:
         raise HTTPException(status_code=404, detail="Entry not found")
+
+
+@router.post("/entries/{entry_id}/analyse", status_code=status.HTTP_202_ACCEPTED)
+async def reanalyse_entry(
+    entry_id: str,
+    background_tasks: BackgroundTasks,
+    user_id: str = Depends(get_current_user),
+):
+    db = get_db()
+    resp = (
+        db.table("journal_entries")
+        .select("body, entry_date")
+        .eq("id", entry_id)
+        .eq("user_id", user_id)
+        .is_("deleted_at", "null")
+        .single()
+        .execute()
+    )
+    if not resp.data:
+        raise HTTPException(status_code=404, detail="Entry not found")
+    entry = resp.data
+    background_tasks.add_task(
+        analyse_journal_entry,
+        entry_id,
+        str(entry["entry_date"]),
+        entry["body"],
+        db,
+    )
+    return {"status": "queued"}

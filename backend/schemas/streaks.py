@@ -22,6 +22,8 @@ class DayHistory(BaseModel):
     completion_percentage: float
     has_journal_entry: bool
     completed_habit_ids: list[str]
+    mood_sentiment: Optional[str] = None
+    mood_summary: Optional[str] = None
 
 
 class HistoryResponse(BaseModel):

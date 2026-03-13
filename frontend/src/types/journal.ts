@@ -6,6 +6,15 @@ export interface JournalEntry {
   body: string
   created_at: string
   updated_at: string
+  // AI analysis fields
+  primary_sentiment?: string | null
+  sentiment_score?: number | null
+  energy_level?: string | null
+  key_themes?: string[] | null
+  one_line_summary?: string | null
+  keywords?: string[] | null
+  analysis_status?: string | null
+  analysed_at?: string | null
 }
 
 export interface JournalListResponse {

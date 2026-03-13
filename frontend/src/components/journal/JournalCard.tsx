@@ -1,6 +1,8 @@
 import Link from 'next/link'
 import { JournalEntry } from '@/types/journal'
 import { formatRelative, formatDate } from '@/lib/utils/dates'
+import { MoodBadge } from './MoodBadge'
+import { ThemeChip } from './ThemeChip'
 
 interface JournalCardProps {
   entry: JournalEntry
@@ -9,6 +11,8 @@ interface JournalCardProps {
 export function JournalCard({ entry }: JournalCardProps) {
   const preview = entry.body.replace(/[#*`_\[\]]/g, '').slice(0, 140)
   const wordCount = entry.body.split(/\s+/).filter(Boolean).length
+  const hasAnalysis = entry.analysis_status === 'done' && entry.primary_sentiment
+  const themes = entry.key_themes?.slice(0, 3) ?? []
 
   return (
     <Link href={`/journal/${entry.id}`}>
@@ -27,14 +31,33 @@ export function JournalCard({ entry }: JournalCardProps) {
           <p className="text-xs text-[#B0A898] mb-2">{formatDate(entry.entry_date)}</p>
         )}
 
-        {preview && (
+        {/* AI one-line summary */}
+        {hasAnalysis && entry.one_line_summary && (
+          <p className="text-xs italic text-[#8A7A6A] mb-2 leading-relaxed">{entry.one_line_summary}</p>
+        )}
+
+        {!entry.one_line_summary && preview && (
           <p className="text-sm text-[#7A7169] line-clamp-2 leading-relaxed">{preview}{preview.length >= 140 ? '...' : ''}</p>
+        )}
+
+        {/* Mood badge + themes */}
+        {hasAnalysis && (
+          <div className="mt-3 flex flex-wrap items-center gap-2">
+            <MoodBadge sentiment={entry.primary_sentiment} size="sm" />
+            {themes.map(t => <ThemeChip key={t} theme={t} />)}
+          </div>
         )}
 
         <div className="mt-3 flex items-center gap-3">
           <span className="text-xs text-[#C0B8B0]">{wordCount} words</span>
           <span className="w-1 h-1 rounded-full bg-[#E2DBD0]" />
           <span className="text-xs text-[#C0B8B0]">{new Date(entry.entry_date + 'T00:00:00').toLocaleDateString('en-US', { month: 'short', day: 'numeric' })}</span>
+          {entry.analysis_status === 'pending' && (
+            <>
+              <span className="w-1 h-1 rounded-full bg-[#E2DBD0]" />
+              <span className="text-xs text-[#C9A96E]">analysing…</span>
+            </>
+          )}
         </div>
       </article>
     </Link>

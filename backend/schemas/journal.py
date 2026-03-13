@@ -23,6 +23,14 @@ class JournalEntryResponse(BaseModel):
     body: str
     created_at: datetime
     updated_at: datetime
+    primary_sentiment: Optional[str] = None
+    sentiment_score: Optional[float] = None
+    energy_level: Optional[str] = None
+    key_themes: Optional[list[str]] = None
+    one_line_summary: Optional[str] = None
+    keywords: Optional[list[str]] = None
+    analysis_status: Optional[str] = None
+    analysed_at: Optional[datetime] = None
 
     class Config:
         from_attributes = True

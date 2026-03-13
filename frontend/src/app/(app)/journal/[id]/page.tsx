@@ -6,6 +6,7 @@ import { useJournalEntry } from '@/hooks/useJournal'
 import { journalApi } from '@/lib/api/journal'
 import { useToast } from '@/context/ToastContext'
 import { JournalEditor } from '@/components/journal/JournalEditor'
+import { AnalysisPanel } from '@/components/journal/AnalysisPanel'
 import { Spinner } from '@/components/ui/Spinner'
 import { Button } from '@/components/ui/Button'
 import { ArrowLeft, Trash2 } from 'lucide-react'
@@ -41,6 +42,7 @@ export default function JournalEntryPage({ params }: { params: Promise<{ id: str
         </div>
         <div className="bg-white rounded-2xl border border-[#E2DBD0] p-8" style={{ boxShadow: '0 1px 4px rgba(30,61,47,0.06)' }}>
           <JournalEditor entry={entry} onSaved={(_, updated) => updated && setEntry(updated)} />
+          <AnalysisPanel entry={entry} />
         </div>
       </div>
     </div>

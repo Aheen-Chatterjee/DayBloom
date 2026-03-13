@@ -376,22 +376,149 @@ def seed_completions(user_id: str, habits: list[dict]):
     print(f'  Inserted {len(completions)} completions')
 
 
+JOURNAL_ANALYSIS = [
+    {  # day 0: A gentle beginning
+        'primary_sentiment': 'Joyful',
+        'sentiment_score': 0.82,
+        'energy_level': 'High',
+        'key_themes': ['Morning Routine', 'Mindfulness', 'Gratitude'],
+        'one_line_summary': 'A peaceful reset day full of intention and quiet morning energy.',
+        'keywords': ['meditation', 'grounding', 'quiet', 'tea', 'grateful', 'walk', 'reset', 'breath'],
+    },
+    {  # day 1: Momentum
+        'primary_sentiment': 'Hopeful',
+        'sentiment_score': 0.74,
+        'energy_level': 'High',
+        'key_themes': ['Habit Streaks', 'Reading', 'Habit Stacking'],
+        'one_line_summary': 'Building momentum with streaks and finding joy in small consistent wins.',
+        'keywords': ['momentum', 'streaks', 'meditation', 'reading', 'coffee', 'habit', 'stacking', 'rain'],
+    },
+    {  # day 2: A harder day
+        'primary_sentiment': 'Lethargic',
+        'sentiment_score': -0.31,
+        'energy_level': 'Low',
+        'key_themes': ['Low Energy', 'Self-Compassion', 'Partial Wins'],
+        'one_line_summary': 'A difficult day with low energy, but holding onto self-compassion.',
+        'keywords': ['restlessness', 'tired', 'distracted', 'skipped', 'failure', 'practice', 'resilience'],
+    },
+    {  # day 3: Recovery
+        'primary_sentiment': 'Reflective',
+        'sentiment_score': 0.45,
+        'energy_level': 'Medium',
+        'key_themes': ['Recovery', 'Nature', 'Decision Fatigue'],
+        'one_line_summary': 'Recovery day with a heron sighting and renewed morning intention.',
+        'keywords': ['heron', 'walk', 'recovery', 'intention', 'clarity', 'decision fatigue', 'stillness'],
+    },
+    {  # day 4: Finding the rhythm
+        'primary_sentiment': 'Content',
+        'sentiment_score': 0.69,
+        'energy_level': 'High',
+        'key_themes': ['Habit Automation', 'Nature', 'Community'],
+        'one_line_summary': 'Habits are becoming natural, and nature teaches lessons about community.',
+        'keywords': ['rhythm', 'automatic', 'mycorrhizal', 'forest', 'community', 'meditation', 'gratitude'],
+    },
+    {  # day 5: Weekend ease
+        'primary_sentiment': 'Joyful',
+        'sentiment_score': 0.61,
+        'energy_level': 'High',
+        'key_themes': ['Weekend', 'Nature Walk', 'Flexibility'],
+        'one_line_summary': 'A restorative Saturday with a long botanical garden walk and earned sleep.',
+        'keywords': ['Saturday', 'botanical', 'dahlias', 'walk', 'relaxed', 'documentary', 'flexibility'],
+    },
+    {  # day 6: A quiet Sunday
+        'primary_sentiment': 'Content',
+        'sentiment_score': 0.55,
+        'energy_level': 'Medium',
+        'key_themes': ['Quiet Rest', 'Cooking', 'Presence'],
+        'one_line_summary': 'A quiet Sunday of doing less, learning to cook béchamel, and being present.',
+        'keywords': ['Sunday', 'quiet', 'béchamel', 'cooking', 'present', 'heron', 'restorative'],
+    },
+    {  # day 7: One week in
+        'primary_sentiment': 'Reflective',
+        'sentiment_score': 0.66,
+        'energy_level': 'Medium',
+        'key_themes': ['Milestone', 'Self-Observation', 'Habit Psychology'],
+        'one_line_summary': 'Reflecting on one week of consistency and the psychology of being observed.',
+        'keywords': ['one week', 'patience', 'present', 'Hawthorne', 'meditation', 'habits', 'compound'],
+    },
+    {  # day 8: Miss on reading
+        'primary_sentiment': 'Neutral',
+        'sentiment_score': 0.18,
+        'energy_level': 'Medium',
+        'key_themes': ['Missed Habit', 'Work Stress', 'Learning'],
+        'one_line_summary': 'A late meeting disrupted reading, but everything else held steady.',
+        'keywords': ['late', 'depleted', 'meeting', 'reading', 'spaced repetition', 'midday', 'resilient'],
+    },
+    {  # day 9: Back on track
+        'primary_sentiment': 'Energised',
+        'sentiment_score': 0.78,
+        'energy_level': 'High',
+        'key_themes': ['Recovery', 'Reading Streak', 'Good Sleep'],
+        'one_line_summary': 'Reading resumed with 40 pages and a full perfect day of habits.',
+        'keywords': ['recovery', 'reading', 'morning', 'streak', 'water', 'sleep', 'clarity', 'full day'],
+    },
+    {  # day 10: Deep work
+        'primary_sentiment': 'Joyful',
+        'sentiment_score': 0.85,
+        'energy_level': 'High',
+        'key_themes': ['Intrinsic Motivation', 'Deep Focus', 'Evening Routine'],
+        'one_line_summary': 'A breakthrough day: meditation became intrinsically motivating and focus deepened.',
+        'keywords': ['intrinsic', 'motivation', 'deep work', 'focus', 'evening', 'phone curfew', 'gift'],
+    },
+    {  # day 11: Social day
+        'primary_sentiment': 'Content',
+        'sentiment_score': 0.52,
+        'energy_level': 'Medium',
+        'key_themes': ['Social Connection', 'Friendship', 'Flexibility'],
+        'one_line_summary': 'Hosting friends over dinner with rich conversation about life and meaning.',
+        'keywords': ['friends', 'dinner', 'hosting', 'béchamel', 'conversation', 'generous', 'tired'],
+    },
+    {  # day 12: Two weeks
+        'primary_sentiment': 'Reflective',
+        'sentiment_score': 0.58,
+        'energy_level': 'Medium',
+        'key_themes': ['Milestone', 'Personal Growth', 'Consistency over Perfection'],
+        'one_line_summary': 'Two weeks of showing up: subtle change, more patience, and accumulated insight.',
+        'keywords': ['fourteen days', 'anxieties', 'patience', 'space', 'meditation', 'anchor', 'gratitude'],
+    },
+    {  # day 13: Looking forward
+        'primary_sentiment': 'Hopeful',
+        'sentiment_score': 0.88,
+        'energy_level': 'High',
+        'key_themes': ['Future Goals', 'Habit Completion', 'Creativity'],
+        'one_line_summary': 'A perfect final day: all habits done, planning new creative writing habit.',
+        'keywords': ['forward', 'complete', 'shape', 'creative writing', 'autumn light', 'grateful', 'practice'],
+    },
+]
+
+
 def seed_journal(user_id: str):
-    """Insert static journal entries."""
+    """Insert static journal entries with pre-computed mood analysis."""
     print('Seeding journal entries...')
+    from datetime import datetime, timezone
+    analysed_at = datetime.now(timezone.utc).isoformat()
     entries = []
-    for e in JOURNAL_ENTRIES:
+    for i, e in enumerate(JOURNAL_ENTRIES):
         day_offset = e['day_offset']
         if day_offset < 14:
+            analysis = JOURNAL_ANALYSIS[i]
             entries.append({
                 'user_id': user_id,
                 'entry_date': ALL_DAYS[day_offset].isoformat(),
                 'title': e['title'],
                 'body': e['body'].strip(),
+                'primary_sentiment': analysis['primary_sentiment'],
+                'sentiment_score': analysis['sentiment_score'],
+                'energy_level': analysis['energy_level'],
+                'key_themes': analysis['key_themes'],
+                'one_line_summary': analysis['one_line_summary'],
+                'keywords': analysis['keywords'],
+                'analysis_status': 'done',
+                'analysed_at': analysed_at,
             })
 
     sb.table('journal_entries').insert(entries).execute()
-    print(f'  Inserted {len(entries)} journal entries')
+    print(f'  Inserted {len(entries)} journal entries with mood analysis')
 
 
 def main():

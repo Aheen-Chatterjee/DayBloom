@@ -11,7 +11,7 @@ primary_region = "iad"
 
 [env]
   # Add non-sensitive environment variables here
-  # E.g., PORT = "8080"
+  ALLOWED_ORIGINS = "https://daybloomjournal.vercel.app,http://localhost:3000,http://localhost:8080"
 
 [http_service]
   internal_port = 8080

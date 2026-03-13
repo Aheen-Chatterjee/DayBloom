@@ -17,6 +17,9 @@ export interface DayHistory {
   completion_percentage: number
   has_journal_entry: boolean
   completed_habit_ids: string[]
+  // Mood data (if journal entry has been analysed)
+  mood_sentiment?: string | null
+  mood_summary?: string | null
 }
 
 export interface HistoryResponse {

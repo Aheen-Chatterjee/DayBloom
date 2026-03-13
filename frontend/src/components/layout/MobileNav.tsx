@@ -3,13 +3,14 @@
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
 import { cn } from '@/lib/utils/cn'
-import { Sun, BookOpen, CheckSquare, BarChart2 } from 'lucide-react'
+import { Sun, BookOpen, CheckSquare, BarChart2, Sparkles } from 'lucide-react'
 
 const TABS = [
   { href: '/dashboard', label: 'Today', icon: Sun },
   { href: '/journal', label: 'Journal', icon: BookOpen },
   { href: '/habits', label: 'Habits', icon: CheckSquare },
   { href: '/history', label: 'History', icon: BarChart2 },
+  { href: '/insights', label: 'Insights', icon: Sparkles },
 ]
 
 export function MobileNav() {

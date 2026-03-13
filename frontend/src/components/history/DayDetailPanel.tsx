@@ -3,9 +3,10 @@
 import { DayHistory } from '@/types/streaks'
 import { formatDate } from '@/lib/utils/dates'
 import { X, BookOpen, TrendingUp } from 'lucide-react'
+import { MoodBadge } from '@/components/journal/MoodBadge'
 
 interface DayDetailPanelProps {
-  day: DayHistory | null
+  day: (DayHistory & { mood_sentiment?: string | null; mood_summary?: string | null }) | null
   onClose: () => void
 }
 
@@ -35,7 +36,6 @@ export function DayDetailPanel({ day, onClose }: DayDetailPanelProps) {
           <div className="text-xs text-[#7A7169] mt-1">
             {day.completion_count} of {day.total_habits} habits
           </div>
-          {/* Mini progress bar */}
           <div className="mt-3 h-1.5 bg-[#E2DBD0] rounded-full overflow-hidden">
             <div
               className="h-full rounded-full bg-[#1E3D2F] transition-all"
@@ -44,7 +44,21 @@ export function DayDetailPanel({ day, onClose }: DayDetailPanelProps) {
           </div>
         </div>
 
-        {day.has_journal_entry && (
+        {/* Mood block */}
+        {day.has_journal_entry && day.mood_sentiment && (
+          <div className="rounded-xl p-3.5 border" style={{ background: '#F9F7F2', borderColor: '#E2DBD0' }}>
+            <div className="flex items-center gap-2 mb-2">
+              <BookOpen size={13} className="text-[#8A6E3A]" />
+              <span className="text-xs font-semibold text-[#8A6E3A]">Today&apos;s mood</span>
+            </div>
+            <MoodBadge sentiment={day.mood_sentiment} size="sm" />
+            {day.mood_summary && (
+              <p className="mt-2 text-xs italic text-[#7A7169] leading-relaxed">&ldquo;{day.mood_summary}&rdquo;</p>
+            )}
+          </div>
+        )}
+
+        {day.has_journal_entry && !day.mood_sentiment && (
           <div className="flex items-center gap-3 bg-[#C9A96E12] border border-[#C9A96E30] rounded-xl p-3.5">
             <BookOpen size={15} className="text-[#8A6E3A] flex-shrink-0" />
             <span className="text-sm font-medium text-[#8A6E3A]">Journal entry written</span>

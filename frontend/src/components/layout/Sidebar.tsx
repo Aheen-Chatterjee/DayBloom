@@ -14,6 +14,7 @@ import {
   LogOut,
   Leaf,
   Flame,
+  Sparkles,
 } from 'lucide-react'
 
 const TODAY_ITEMS = [
@@ -24,6 +25,7 @@ const TODAY_ITEMS = [
 const TRACKING_ITEMS = [
   { href: '/habits', label: 'Habits', icon: CheckSquare },
   { href: '/history', label: 'History', icon: BarChart2 },
+  { href: '/insights', label: 'Insights', icon: Sparkles },
 ]
 
 export function Sidebar() {
