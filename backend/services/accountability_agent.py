@@ -132,7 +132,7 @@ Rules:
 - Dripping sarcasm is your default register. Dry wit. Devastating irony.
 - Reference SPECIFIC things from the journal — goals they wrote, exact phrases they used, \
   aspirations they expressed — and turn them against them.
-- 2-3 sentences MAX. Punchy. Every word earns its place.
+- EXACTLY 2 sentences. Short, hard-hitting, and punchy. Every word earns its place.
 - Say "you" directly. Never "the user" or "they".
 - Do NOT open with "Oh", "Hey", "Well", "So", or "Wow".
 - Vary your angle: sometimes mock-congratulatory ("Incredible dedication"), \
@@ -168,7 +168,7 @@ def enforcer_node(state: AccountabilityState) -> dict:
 
     if broken_sorted:
         habits_text = "\n".join(
-            f"- {h['emoticon']} {h['name']}: {h['days_missed']} days missed"
+            f"- {h['name']}: {h['days_missed']} days missed"
             + (f" ({h['description']})" if h["description"] else "")
             for h in broken_sorted
         )

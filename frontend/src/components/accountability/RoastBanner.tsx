@@ -21,19 +21,19 @@ export function RoastBanner() {
     habitTitle = 'General Character Assessment'
   } else if (realHabits.length === 1) {
     const h = realHabits[0]
-    habitTitle = `${h.emoticon ? h.emoticon + ' ' : ''}${h.name} — ${h.days_missed} day${h.days_missed !== 1 ? 's' : ''} missed`
+    habitTitle = `${h.name} — ${h.days_missed} day${h.days_missed !== 1 ? 's' : ''} missed`
   } else if (realHabits.length === 2) {
     habitTitle = realHabits
-      .map(h => `${h.emoticon ? h.emoticon + ' ' : ''}${h.name}`)
+      .map(h => h.name)
       .join(' · ')
     const worst = [...realHabits].sort((a, b) => b.days_missed - a.days_missed)[0]
     habitSubtext = `Worst offender: ${worst.name} at ${worst.days_missed} days`
   } else {
-    const first2 = realHabits.slice(0, 2).map(h => `${h.emoticon ? h.emoticon + ' ' : ''}${h.name}`).join(' · ')
+    const first2 = realHabits.slice(0, 2).map(h => h.name).join(' · ')
     habitTitle = `${first2} +${realHabits.length - 2} more`
     habitSubtext = realHabits
       .sort((a, b) => b.days_missed - a.days_missed)
-      .map(h => `${h.emoticon || ''}${h.name} (${h.days_missed}d)`)
+      .map(h => `${h.name} (${h.days_missed}d)`)
       .join('  ·  ')
   }
 
@@ -46,7 +46,7 @@ export function RoastBanner() {
         boxShadow: '0 8px 40px rgba(180, 20, 20, 0.4)',
       }}
     >
-      <div className="max-w-4xl mx-auto px-6 py-6 md:py-8">
+      <div className="max-w-2xl mx-auto px-5 py-4 md:py-6">
 
         {/* Top row: icon + label */}
         <div className="flex items-center gap-2 mb-3">
