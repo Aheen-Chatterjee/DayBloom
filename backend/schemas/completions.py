@@ -16,6 +16,8 @@ class CompletionResponse(BaseModel):
     completion_date: date
     completed_at: datetime
     note: Optional[str]
+    proof_image_url: Optional[str] = None
+    proof_verdict: Optional[str] = None
 
     class Config:
         from_attributes = True
