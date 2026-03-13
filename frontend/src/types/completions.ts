@@ -5,10 +5,6 @@ export interface Completion {
   completion_date: string
   completed_at: string
   note: string | null
-}
-
-export interface CreateCompletion {
-  habit_id: string
-  completion_date: string
-  note?: string
+  proof_image_url?: string
+  proof_verdict?: string
 }
